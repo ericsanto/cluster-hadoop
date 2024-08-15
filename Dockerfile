@@ -33,6 +33,7 @@ RUN echo "root:default" | chpasswd && \
 #Define o diretório de trabalho
 WORKDIR /home/hadoop
 
+#Copia o script bash para o container
 COPY ./automatization-cluster.sh /home/hadoop/
 
 #Instala o jdk
@@ -40,15 +41,14 @@ RUN wget https://download.oracle.com/java/22/latest/jdk-22_linux-x64_bin.deb && 
     dpkg -i jdk-22_linux-x64_bin.deb && \
     rm jdk-22_linux-x64_bin.deb
 
-#Permite acessar o container
-RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
-    echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
 
-# Gera uma chave SSH e configura o arquivo authorized_keys
-RUN mkdir -p /home/hadoop/.ssh && \
+# Gera uma chave SSH, configura o arquivo authorized_keys e configura o arquivo /etc/ssh/sshd_config
+RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
+    mkdir -p /home/hadoop/.ssh && \
     ssh-keygen -t rsa -b 4096 -f /home/hadoop/.ssh/id_rsa -N "" && \
     chown -R hadoop:hadoop /home/hadoop/.ssh 
 
+#Instala o hadoop e altera as permissões da pasta hadoop
 RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.gz && \
     tar -xzf hadoop-3.4.0.tar.gz && \
     mv hadoop-3.4.0 hadoop && \
@@ -56,6 +56,6 @@ RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.
     chown -R hadoop:hadoop /home/hadoop/hadoop && \
     chown -R hadoop:hadoop /home/hadoop/automatization-cluster.sh && \
     chmod +x /home/hadoop/automatization-cluster.sh 
-    
+
 # Comando padrão para executar quando o contêiner for iniciado
 CMD [ "/bin/bash" ]
