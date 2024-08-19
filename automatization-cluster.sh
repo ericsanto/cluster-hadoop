@@ -4,7 +4,7 @@ master="master"
 slave="slave"
 
 while true; do
-    read -p "Digite a característica do nó deste pc: Master/Slave" feature
+    read -p "Digite a característica do nó deste pc: Master/Slave: " feature
     feature=${feature,,}
 
     if [ "$feature" = "$master" ] || [ "$feature" = "$slave" ]; then
