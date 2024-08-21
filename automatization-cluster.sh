@@ -280,11 +280,11 @@ path_file_hadoop_start="$HADOOP_HOME/sbin/start-dfs.sh"
 if [ $feature = $master ]; then
     sed -i '/localhost/d' "$path_file_workers"
     echo "$line_to_add_workers_file" >> "$path_file_workers"
-    echo "$master_lines_to_add_hadoop_env_sh" "$hadoop_env_path"
-    echo "$master_lines_to_add_hadoop_env_sh" "$path_file_hadoop_start"
+    echo "$master_lines_to_add_hadoop_env_sh" >> "$hadoop_env_path"
+    echo "$master_lines_to_add_hadoop_env_sh" >> "$path_file_hadoop_start"
 else
-	echo "$slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh" "$hadoop_env_path"
-	echo "$slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh" "$path_file_hadoop_start"
+	echo "$slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh" >> "$hadoop_env_path"
+	echo "$slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh" >>  "$path_file_hadoop_start"
 fi
 
 echo "Configuração do Hadoop concluída com sucesso!"
