@@ -38,6 +38,7 @@ COPY ./automatization-cluster.sh /home/hadoop/
 
 #Instala o jdk
 RUN wget https://download.oracle.com/java/22/latest/jdk-22_linux-x64_bin.deb && \
+    wget https://repo.maven.apache.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/1.0.1/jmx_prometheus_javaagent-1.0.1.jar && \
     dpkg -i jdk-22_linux-x64_bin.deb && \
     rm jdk-22_linux-x64_bin.deb
 
