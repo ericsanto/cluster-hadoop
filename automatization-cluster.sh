@@ -259,23 +259,23 @@ rules:
 EOM
 )
 
-echo "$lines_to_add_jmx_exporter_yaml" "$path_config_metrics/jmx_exporter.yaml"
+echo "$lines_to_add_jmx_exporter_yaml" >> "$path_config_metrics/jmx_exporter.yaml"
 
 #Adiciona a configuração de metricas do master aos arquivos hadoop-env.sh e start-dfs.sh
 master_lines_to_add_hadoop_env_sh=$(cat <<- EOM
-export HDFS_NAMENODE_OPTS=\$HDFS_NAMENODE_OPTS -javaagent:\$HOME/java-jmx/jmx_prometheus_javaagent-1.0.1.jar=8081:\$HOME/java-jmx/jmx_exporter.yaml 
+export HDFS_NAMENODE_OPTS="\$HDFS_NAMENODE_OPTS -javaagent:\$HOME/java-jmx/jmx_prometheus_javaagent-1.0.1.jar=8081:\$HOME/java-jmx/jmx_exporter.yaml" 
 
 EOM
 )
 
 #Adiciona a configuração de metricas do(s) slave(s) aos arquivos hadoop-env.sh e start-dfs.sh
 slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh=$(cat <<- EOM
-export HDFS_DATANODE_OPTS=\$HDFS_DATANODE_OPTS -javaagent:\$HOME/java-jmx/jmx_prometheus_javaagent-1.0.1.jar=8081:\$HOME/java-jmx/jmx_exporter.yaml 
+export HDFS_DATANODE_OPTS="\$HDFS_DATANODE_OPTS -javaagent:\$HOME/java-jmx/jmx_prometheus_javaagent-1.0.1.jar=8081:\$HOME/java-jmx/jmx_exporter.yaml" 
 EOM
 )
 
 
-path_file_hadoop_start="$HADOOP_HOME/sbin/start-dfs.sh"
+path_file_hadoop_start="$HOME/hadoop/sbin/start-dfs.sh"
 
 if [ $feature = $master ]; then
     sed -i '/localhost/d' "$path_file_workers"
