@@ -21,10 +21,17 @@ bash_rc_path="$HOME/.bashrc"
 
 # Linhas a serem adicionadas ao .bashrc
 lines_to_add=$(cat <<- EOM
-export JAVA_HOME=/usr/java/jdk-22-oracle-x64
-export PATH=\$PATH:\$JAVA_HOME/bin
-export HADOOP_HOME=\$HOME/hadoop
-export PATH=\$PATH:\$HADOOP_HOME/bin
+# Configuração de variáveis de ambiente para o Hadoop
+export HADOOP_HOME=/home/hadoop/hadoop
+export HADOOP_INSTALL=\$HADOOP_HOME
+export HADOOP_MAPRED_HOME=\$HADOOP_HOME
+export HADOOP_COMMON_HOME=\$HADOOP_HOME
+export HADOOP_HDFS_HOME=\$HADOOP_HOME
+export YARN_HOME=\$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=\$HADOOP_HOME/lib/native
+export PATH=\$PATH:\$HADOOP_HOME/sbin:\$HADOOP_HOME/bin
+export HADOOP_OPTS="-Djava.library.path=\$HADOOP_HOME/lib/native"
+
 EOM
 )
 
@@ -40,7 +47,7 @@ hadoop_env_path="$path_files_hadoop/hadoop-env.sh"
 
 # Linhas a serem adicionadas ao hadoop-env.sh
 lines_to_add_in_hadoop_env_sh=$(cat <<- EOM
-export JAVA_HOME=/usr/java/jdk-22-oracle-x64
+export JAVA_HOME=/usr/lib/jvm/jdk-22.0.2-oracle-x64
 export HADOOP_HOME=/home/hadoop/hadoop
 export HADOOP_CONF_DIR="\$HADOOP_HOME/etc/hadoop"
 export PATH="\${PATH}:\${HADOOP_HOME}/bin"
@@ -56,11 +63,12 @@ echo "Linhas adicionadas ao $hadoop_env_path com sucesso!"
 path_to_add_config_core_site_xml="$path_files_hadoop/core-site.xml"
 lines_to_add_in_hadoop_core_site_xml=$(cat <<- EOM
 <configuration>
-    <property>
-        <name>fs.default.name</name>
-        <value>hdfs://master:19000</value>
-    </property>
+<property>
+  <name>fs.default.name</name>
+  <value>hdfs://127.0.0.1:9000</value>
+</property>
 </configuration>
+
 EOM
 )
 
@@ -75,26 +83,27 @@ echo "$lines_to_add_in_hadoop_core_site_xml" >> "$path_to_add_config_core_site_x
 echo "Linhas adicionadas ao $path_to_add_config_core_site_xml com sucesso!"
 
 # Cria diretórios
-mkdir -p "$HOME/hadoop/dfs/data"
+mkdir -p "$HOME/hadoop/data/hadoop/hdfs/{namenode, datanode}"
 mkdir -p "$HOME/hadoop/dfs/namespace_logs"
 
 # Caminho para o arquivo hdfs-site.xml
 path_to_add_config_hdfs_site_xml="$path_files_hadoop/hdfs-site.xml"
 lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
 <configuration>
-    <property>
-        <name>dfs.replication</name>
-        <value>3</value>
-    </property>
-    <property>
-        <name>dfs.namenode.name.dir</name>
-        <value>\$HOME/hadoop/dfs/namespace_logs</value>
-    </property>
-    <property>
-        <name>dfs.datanode.data.dir</name>
-        <value>\$HOME/hadoop/dfs/data</value>
-    </property>
+<property>
+  <name>dfs.name.dir</name>
+  <value>/home/hadoop/data/hadoop/hdfs/namenode</value>
+</property>
+<property>
+  <name>dfs.data.dir</name>
+  <value>/home/hadoop/data/hadoop/hdfs/datanode</value>
+</property>
+<property>
+  <name>dfs.replication</name>
+  <value>1</value>
+</property>
 </configuration>
+
 EOM
 )
 
@@ -111,32 +120,13 @@ echo "Linhas adicionadas ao $path_to_add_config_hdfs_site_xml com sucesso!"
 # Caminho para o arquivo mapred-site.xml
 path_to_add_in_config_map_reduce_xml="$path_files_hadoop/mapred-site.xml"
 lines_to_add_in_config_mapred_site_xml=$(cat <<- EOM
-<configuration>
-    <property>
-        <name>mapreduce.job.user.name</name>
-        <value>hadoop</value>
-    </property>
-    <property>
-        <name>yarn.resourcemanager.address</name>
-        <value>master:8032</value>
-    </property>
-    <property>
-        <name>mapreduce.framework.name</name>
-        <value>yarn</value>
-    </property>
-    <property>
-        <name>yarn.app.mapreduce.am.env</name>
-        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-    </property>
-    <property>
-        <name>mapreduce.map.env</name>
-        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-    </property>
-    <property>
-        <name>mapreduce.reduce.env</name>
-        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-    </property>
+<configuration> 
+<property> 
+  <name>mapreduce.framework.name</name> 
+  <value>yarn</value> 
+</property> 
 </configuration>
+
 EOM
 )
 
@@ -154,51 +144,12 @@ echo "Linhas adicionadas ao $path_to_add_in_config_map_reduce_xml com sucesso!"
 path_to_add_in_config_yarn_site_xml="$path_files_hadoop/yarn-site.xml"
 line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 <configuration>
-    <property>
-        <name>yarn.resourcemanager.hostname</name>
-        <value>master</value>
-    </property>
-    <property>
-        <name>yarn.nodemanager.resource.memory-mb</name>
-        <value>1536</value>
-    </property>
-    <property>
-        <name>yarn.scheduler.maximum-allocation-mb</name>
-        <value>1536</value>
-    </property>
-    <property>
-        <name>yarn.scheduler.minimum-allocation-mb</name>
-        <value>128</value>
-    </property>
-    <property>
-        <name>yarn.nodemanager.vmem-check-enabled</name>
-        <value>false</value>
-    </property>
-    <property>
-        <name>yarn.server.resourcemanager.application.expiry.interval</name>
-        <value>60000</value>
-    </property>
-    <property>
-        <name>yarn.nodemanager.aux-services</name>
-        <value>mapreduce_shuffle</value>
-    </property>
-    <property>
-        <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
-        <value>org.apache.hadoop.mapred.ShuffleHandler</value>
-    </property>
-    <property>
-        <name>yarn.log-aggregation-enable</name>
-        <value>true</value>
-    </property>
-    <property>
-        <name>yarn.log-aggregation.retain-seconds</name>
-        <value>-1</value>
-    </property>
-    <property>
-        <name>yarn.application.classpath</name>
-        <value>\$HADOOP_CONF_DIR,\${HADOOP_COMMON_HOME}/share/hadoop/common/*,\${HADOOP_COMMON_HOME}/share/hadoop/common/lib/*,\${HADOOP_HDFS_HOME}/share/hadoop/hdfs/*,\${HADOOP_HDFS_HOME}/share/hadoop/hdfs/lib/*,\${HADOOP_MAPRED_HOME}/share/hadoop/mapreduce/*,\${HADOOP_MAPRED_HOME}/share/hadoop/mapreduce/lib/*,\${HADOOP_YARN_HOME}/share/hadoop/yarn/*,\${HADOOP_YARN_HOME}/share/hadoop/yarn/lib/*</value>
-    </property>
+   <property>
+      <name>yarn.nodemanager.aux-services</name>
+      <value>mapreduce_shuffle</value>
+   </property>
 </configuration>
+
 EOM
 )
 
@@ -219,6 +170,8 @@ line_to_add_workers_file="slave"
 if [ $feature = $master ]; then
     sed -i '/localhost/d' "$path_file_workers"
     echo "$line_to_add_workers_file" >> "$path_file_workers"
+else
+    sed -i '/localhost/d' "$path_file_workers"   	
 fi
 
 echo "Configuração do Hadoop concluída com sucesso!"
@@ -243,49 +196,49 @@ echo "Configuração do Hadoop concluída com sucesso!"
 
 #echo "$lines_to_add_namenode_yam" >> "$path_namenode_yam"
 
-mkdir "$HOME/java-jmx"
+#mkdir "$HOME/java-jmx"
 
-path_config_metrics="$HOME/java-jmx"
+#path_config_metrics="$HOME/java-jmx"
 
-file_jmx_prometheus="jmx_prometheus_javaagent-1.0.1.jar"
+#file_jmx_prometheus="jmx_prometheus_javaagent-1.0.1.jar"
 
-mv "$file_jmx_prometheus" "$path_config_metrics"
+#mv "$file_jmx_prometheus" "$path_config_metrics"
 
 
-lines_to_add_jmx_exporter_yaml=$(cat <<- EOM
-rules:
-  - pattern: '.*'
-    name: jmx_metric
-EOM
-)
+#lines_to_add_jmx_exporter_yaml=$(cat <<- EOM
+#rules:
+#  - pattern: '.*'
+#    name: jmx_metric
+#EOM
+#)
 
-echo "$lines_to_add_jmx_exporter_yaml" >> "$path_config_metrics/jmx_exporter.yaml"
+#echo "$lines_to_add_jmx_exporter_yaml" >> "$path_config_metrics/jmx_exporter.yaml"
 
 #Adiciona a configuração de metricas do master aos arquivos hadoop-env.sh e start-dfs.sh
-master_lines_to_add_hadoop_env_sh=$(cat <<- EOM
-export HDFS_NAMENODE_OPTS="\$HDFS_NAMENODE_OPTS -javaagent:\$HOME/java-jmx/jmx_prometheus_javaagent-1.0.1.jar=8081:\$HOME/java-jmx/jmx_exporter.yaml" 
+#master_lines_to_add_hadoop_env_sh=$(cat <<- EOM
+#export HDFS_NAMENODE_OPTS="\$HDFS_NAMENODE_OPTS -javaagent:\$HOME/java-jmx/jmx_prometheus_javaagent-1.0.1.jar=8081:\$HOME/java-jmx/jmx_exporter#.yaml" 
 
-EOM
-)
+#EOM
+#)
 
 #Adiciona a configuração de metricas do(s) slave(s) aos arquivos hadoop-env.sh e start-dfs.sh
-slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh=$(cat <<- EOM
-export HDFS_DATANODE_OPTS="\$HDFS_DATANODE_OPTS -javaagent:\$HOME/java-jmx/jmx_prometheus_javaagent-1.0.1.jar=8081:\$HOME/java-jmx/jmx_exporter.yaml" 
-EOM
-)
+#slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh=$(cat <<- EOM
+#export HDFS_DATANODE_OPTS="\$HDFS_DATANODE_OPTS -javaagent:\$HOME/java-jmx/jmx_prometheus_javaagent-1.0.1.jar=8081:\$HOME/java-jmx/jmx_exporter#.yaml" 
+#EOM
+#)
 
 
-path_file_hadoop_start="$HOME/hadoop/sbin/start-dfs.sh"
+#path_file_hadoop_start="$HOME/hadoop/sbin/start-dfs.sh"
 
-if [ $feature = $master ]; then
-    sed -i '/localhost/d' "$path_file_workers"
-    echo "$line_to_add_workers_file" >> "$path_file_workers"
-    echo "$master_lines_to_add_hadoop_env_sh" >> "$hadoop_env_path"
-    echo "$master_lines_to_add_hadoop_env_sh" >> "$path_file_hadoop_start"
-else
-	echo "$slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh" >> "$hadoop_env_path"
-	echo "$slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh" >>  "$path_file_hadoop_start"
-fi
+#if [ $feature = $master ]; then
+#    sed -i '/localhost/d' "$path_file_workers"
+#    echo "$line_to_add_workers_file" >> "$path_file_workers"
+#    echo "$master_lines_to_add_hadoop_env_sh" >> "$hadoop_env_path"
+#    echo "$master_lines_to_add_hadoop_env_sh" >> "$path_file_hadoop_start"
+#else
+#	echo "$slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh" >> "$hadoop_env_path"
+#	echo "$slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh" >>  "$path_file_hadoop_start"
+#fi
 
-echo "Configuração do Hadoop concluída com sucesso!"
+#echo "Configuração do Hadoop concluída com sucesso!"
 
