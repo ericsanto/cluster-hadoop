@@ -28,7 +28,7 @@ path_file_zabbix="/etc/zabbix/zabbix_server.conf"
 sed -i '/DBPassword/d' "$path_file_zabbix"
 
 line_to_add_zabbix_conf=$(cat <<- EOM
-DBPassword=zabbix_password
+DBPassword=$ZABBIX_PASSWORD
 EOM
 )
 
