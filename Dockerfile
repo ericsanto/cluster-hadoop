@@ -19,7 +19,8 @@ RUN apt-get update && \
     build-essential \
     iputils-ping \
     mysql-server \
-    software-properties-common && \
+    software-properties-common \
+    wget && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
