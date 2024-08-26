@@ -18,6 +18,7 @@ RUN apt-get update && \
     openssh-client \
     build-essential \
     iputils-ping \
+    mysql-server \
     software-properties-common && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -35,6 +36,7 @@ WORKDIR /home/hadoop
 
 #Copia o script bash para o container
 COPY ./automatization-cluster.sh /home/hadoop/
+COPY ./script-database-zabbix.sh /usr/local/bin
 
 #Instala o jdk
 RUN wget https://download.oracle.com/java/22/latest/jdk-22_linux-x64_bin.deb && \
@@ -57,6 +59,12 @@ RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.
     chown -R hadoop:hadoop /home/hadoop/hadoop && \
     chown -R hadoop:hadoop /home/hadoop/automatization-cluster.sh && \
     chmod +x /home/hadoop/automatization-cluster.sh 
+
+#instalando Zabbix
+RUN wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu22.04_all.deb && \
+    dpkg -i zabbix-release_7.0-2+ubuntu22.04_all.deb && \
+    apt update && \
+    apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent
 
 # Comando padrão para executar quando o contêiner for iniciado
 CMD [ "/bin/bash" ]
