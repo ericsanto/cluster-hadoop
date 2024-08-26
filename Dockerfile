@@ -67,5 +67,9 @@ RUN wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/za
     apt update && \
     apt install -y --no-install-recommends zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent
 
+ENV LANG=pt_BR.UTF-8 \
+    LANGUAGE=pt_BR:pt \
+    LC_ALL=pt_BR.UTF-8
+    
 # Comando padrão para executar quando o contêiner for iniciado
 CMD [ "/bin/bash" ]
