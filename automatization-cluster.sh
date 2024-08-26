@@ -93,6 +93,10 @@ mkdir -p "$HOME/hadoop/dfs"
 mkdir -p "$HOME/hadoop/dfs/data"
 mkdir -p "$HOME/hadoop/dfs/namespace_logs"
 
+#garante que haja uma réplica do dado em cada nó slave, além de uma cópia adicional
+#(geralmente no nó master), totalizando qtd_slave + 1 réplicas.
+dfs_replication=$((qtd_slave + 1))
+
 # Caminho para o arquivo hdfs-site.xml
 path_to_add_config_hdfs_site_xml="$path_files_hadoop/hdfs-site.xml"
 lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
@@ -102,7 +106,7 @@ lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
 
         <name>dfs.replication</name>
 
-        <value>3</value>
+        <value>$dfs_replication</value>
 
     </property>
 
