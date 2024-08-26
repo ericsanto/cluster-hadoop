@@ -20,7 +20,8 @@ RUN apt-get update && \
     iputils-ping \
     mysql-server \
     software-properties-common \
-    wget && \
+    wget \
+    locales && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -58,7 +59,7 @@ RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.
     mv hadoop-3.4.0 hadoop && \
     rm -r hadoop-3.4.0.tar.gz && \
     chown -R hadoop:hadoop /home/hadoop/hadoop && \
-    chown -R hadoop:hadoop /home/hadoop/automatization-cluster.sh && \
+    chown -R hadoop:hadoolocalesp /home/hadoop/automatization-cluster.sh && \
     chmod +x /home/hadoop/automatization-cluster.sh 
 
 #instalando Zabbix
@@ -70,6 +71,6 @@ RUN wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/za
 ENV LANG=pt_BR.UTF-8 \
     LANGUAGE=pt_BR:pt \
     LC_ALL=pt_BR.UTF-8
-    
+
 # Comando padrão para executar quando o contêiner for iniciado
 CMD [ "/bin/bash" ]
