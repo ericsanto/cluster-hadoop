@@ -14,6 +14,13 @@ while true; do
     fi
 done
 
+read -p "Quantos slaves terá o cluster? obs: Digite apenas números: " qtd_slave
+
+while ! [[ "$qtd_slave"  =~ ^[0-9]+$ ]]; do
+    echo "Entrada inválida. Digite apenas números"
+    read -p "Quantos slaves terá o cluster? obs: Digite apenas números: " qtd_slave
+done
+
 path_files_hadoop="$HOME/hadoop/etc/hadoop"
 
 # Caminho para o arquivo .bashrc
@@ -46,6 +53,7 @@ export HADOOP_HOME=/home/hadoop/hadoop
 export HADOOP_CONF_DIR="\$HADOOP_HOME/etc/hadoop"
 export PATH="\${PATH}:\${HADOOP_HOME}/bin"
 export HADOOP_SSH_OPTS="-i ~/.ssh/id_rsa"
+export HADOOP_OPTS="\$HADOOP_OPTS --add-opens=java.base/java.lang=ALL-UNNAMED"
 EOM
 )
 
@@ -102,7 +110,7 @@ lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
 
         <name>dfs.namenode.name.dir</name>
 
-        <value>/home/hadoop/hadoop/dfs/namespace_logs</value>
+        <value>\$HOME/hadoop/dfs/namespace_logs</value>
 
     </property>
 
@@ -110,7 +118,7 @@ lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
 
         <name>dfs.datanode.data.dir</name>
 
-        <value>/home/hadoop/hadoop/dfs/data</value>
+        <value>\$HOME/hadoop/dfs/data</value>
 
     </property>
 
@@ -163,7 +171,7 @@ lines_to_add_in_config_mapred_site_xml=$(cat <<- EOM
 
         <name>yarn.app.mapreduce.am.env</name>
 
-        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
+        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
 
     </property>
 
@@ -171,7 +179,7 @@ lines_to_add_in_config_mapred_site_xml=$(cat <<- EOM
 
         <name>mapreduce.map.env</name>
 
-        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
+        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
 
     </property>
 
@@ -179,7 +187,7 @@ lines_to_add_in_config_mapred_site_xml=$(cat <<- EOM
 
         <name>mapreduce.reduce.env</name>
 
-        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
+        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
 
     </property>
 
@@ -196,6 +204,26 @@ sed -i '/<configuration>/,/<\/configuration>/d' "$path_to_add_in_config_map_redu
 # Adiciona as configurações ao arquivo mapred-site.xml
 echo "$lines_to_add_in_config_mapred_site_xml" >> "$path_to_add_in_config_map_reduce_xml"
 echo "Linhas adicionadas ao $path_to_add_in_config_map_reduce_xml com sucesso!"
+
+
+verification_isnumber() {
+    local input
+    while true; do
+       read -p "$1" input
+        if [[ "$input" =~ ^[0-9]+$ ]]; then
+            echo "$input"
+            return 0
+        
+        else
+            echo "Entrada inválida. Digite apenas números"
+        fi
+    done
+}
+
+tot_memory=$(verification_isnumber "Total de memória disponível para containers em cada NodeManager? Valore em Megabytes: ") 
+max_memory=$(verification_isnumber "Memória máxima que um container pode solicitar? Valore em Megabytes: ")
+min_memory=$(verification_isnumber "Memória mínima que um container pode solicitar? Valor em Megabyte: "s)
+ 
 
 # Caminho para o arquivo yarn-site.xml
 path_to_add_in_config_yarn_site_xml="$path_files_hadoop/yarn-site.xml"
@@ -214,7 +242,7 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 
         <name>yarn.nodemanager.resource.memory-mb</name>
 
-        <value>1536</value>
+        <value>$tot_memory</value>
 
     </property>
 
@@ -222,7 +250,7 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 
         <name>yarn.scheduler.maximum-allocation-mb</name>
 
-        <value>1536</value>
+        <value>$max_memory</value>
 
     </property>
 
@@ -230,7 +258,7 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 
         <name>yarn.scheduler.minimum-allocation-mb</name>
 
-        <value>128</value>
+        <value>$min_memory</value>
 
     </property>
 
@@ -282,6 +310,14 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 
     </property>
 
+    <property>
+
+        <name>yarn.application.classpath</name>
+
+        <value>\$HADOOP_CONF_DIR,\${HADOOP_COMMON_HOME}/share/hadoop/common/*,\${HADOOP_COMMON_HOME}/share/hadoop/common/lib/*,\${HADOOP_HDFS_HOME}/share/hadoop/hdfs/*,\${HADOOP_HDFS_HOME}/share/hadoop/hdfs/lib/*,\${HADOOP_MAPRED_HOME}/share/hadoop/mapreduce/*,\${HADOOP_MAPRED_HOME}/share/hadoop/mapreduce/lib/*,\${HADOOP_YARN_HOME}/share/hadoop/yarn/*,\${HADOOP_YARN_HOME}/share/hadoop/yarn/lib/*</value>
+
+    </property>
+
 </configuration>
 EOM
 )
@@ -297,10 +333,15 @@ echo "$line_to_add_in_config_yarn_site_xml" >> "$path_to_add_in_config_yarn_site
 echo "Linhas adicionadas ao $path_to_add_in_config_yarn_site_xml com sucesso!"
 
 path_file_workers="/home/hadoop/hadoop/etc/hadoop/workers"
+sed -i '/localhost/d' "$path_file_workers"
 
-line_to_add_workers_file="slave"
+while [[ "$qtd_slave" -gt 0 ]]; do
+    line_to_add_workers_file="slave$qtd_slave"
+    echo "$line_to_add_workers_file" >> "$path_file_workers"
+    qtd_slave=$((qtd_slave - 1))
+done
 
-echo "$line_to_add_workers_file" >> "$path_file_workers"
+echo "Quantidade de slaves adicionado no arquivo \$HOME/hadoop/etc/hadoop/workers"
 
 #Criando arquivo para export métricas
 #touch $HOME/namenode.yaml
