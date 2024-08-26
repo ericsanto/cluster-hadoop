@@ -67,8 +67,6 @@ lines_to_add_in_hadoop_core_site_xml=$(cat <<- EOM
     </property>
 
 </configuration>
-
-image
 EOM
 )
 
