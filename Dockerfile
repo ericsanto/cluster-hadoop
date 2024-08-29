@@ -31,13 +31,14 @@ RUN echo "root:default" | chpasswd && \
     useradd -m -d /home/hadoop -s /bin/bash hadoop && \
     echo "hadoop:default" | chpasswd && \
     adduser hadoop sudo && \
-    passwd -e hadoop
+    passwd -e hadoop && \
+    echo 'hadoop ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/hadoop
 
 #Define o diretório de trabalho
 WORKDIR /home/hadoop
 
 #Copia o script bash para o container
-COPY ./automatization-cluster.sh /home/hadoop/
+COPY ./automatization-cluster.sh /usr/local/bin
 COPY ./script-database-zabbix.sh /usr/local/bin
 
 #Instala o jdk
@@ -51,26 +52,22 @@ RUN wget https://download.oracle.com/java/22/latest/jdk-22_linux-x64_bin.deb && 
 RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
     mkdir -p /home/hadoop/.ssh && \
     ssh-keygen -t rsa -b 4096 -f /home/hadoop/.ssh/id_rsa -N "" && \
-    chown -R hadoop:hadoop /home/hadoop/.ssh 
+    chown -R hadoop:hadoop /home/hadoop/.ssh
 
 #Instala o hadoop e altera as permissões da pasta hadoop
 RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.gz && \
     tar -xzf hadoop-3.4.0.tar.gz && \
     mv hadoop-3.4.0 hadoop && \
     rm -r hadoop-3.4.0.tar.gz && \
-    chown -R hadoop:hadoop /home/hadoop/hadoop && \
-    chown -R hadoop:hadoolocalesp /home/hadoop/automatization-cluster.sh && \
-    chmod +x /home/hadoop/automatization-cluster.sh 
-
+    chown -R hadoop:hadoop /home/hadoop/hadoop 
+    
 #instalando Zabbix
 RUN wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     dpkg -i zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     apt update && \
     apt install -y --no-install-recommends zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent
 
-ENV LANG=pt_BR.UTF-8 \
-    LANGUAGE=pt_BR:pt \
-    LC_ALL=pt_BR.UTF-8
+USER hadoop
 
 # Comando padrão para executar quando o contêiner for iniciado
 CMD [ "/bin/bash" ]
