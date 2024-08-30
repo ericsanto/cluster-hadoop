@@ -38,7 +38,7 @@ RUN echo "root:default" | chpasswd && \
 WORKDIR /home/hadoop
 
 #Copia o script bash para o container
-COPY ./automatization-cluster.sh /usr/local/bin
+COPY ./automatization-cluster.sh /home/hadoop/
 COPY ./script-database-zabbix.sh /usr/local/bin
 
 #Instala o jdk
@@ -59,7 +59,8 @@ RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.
     tar -xzf hadoop-3.4.0.tar.gz && \
     mv hadoop-3.4.0 hadoop && \
     rm -r hadoop-3.4.0.tar.gz && \
-    chown -R hadoop:hadoop /home/hadoop/hadoop 
+    chown -R hadoop:hadoop /home/hadoop/hadoop && \
+    chmod +x automatization-cluster.sh
     
 #instalando Zabbix
 RUN wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu22.04_all.deb && \
