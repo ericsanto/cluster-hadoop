@@ -60,6 +60,7 @@ RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.
     mv hadoop-3.4.0 hadoop && \
     rm -r hadoop-3.4.0.tar.gz && \
     chown -R hadoop:hadoop /home/hadoop/hadoop && \
+    chmod -R hadoop:hadoop /home/hadoop/automatization-cluster.sh && \
     chmod +x /home/hadoop/automatization-cluster.sh
     
 #instalando Zabbix
