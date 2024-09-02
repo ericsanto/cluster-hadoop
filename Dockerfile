@@ -60,7 +60,7 @@ RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.
     mv hadoop-3.4.0 hadoop && \
     rm -r hadoop-3.4.0.tar.gz && \
     chown -R hadoop:hadoop /home/hadoop/hadoop && \
-    chmod +x /home/hadoop/automatization-cluster.sh
+    chown -R hadoop:hadoop /home/hadoop/automatization-cluster.sh
     
 #instalando Zabbix
 RUN wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu22.04_all.deb && \

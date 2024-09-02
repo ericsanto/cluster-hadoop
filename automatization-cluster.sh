@@ -40,8 +40,6 @@ EOM
 echo "$lines_to_add" >> "$bash_rc_path"
 echo "Linhas adicionadas ao $bash_rc_path com sucesso!"
 
-# Aplicar mudanças no .bashrc (verifique se o comando funciona no seu terminal)
-source "$bash_rc_path"
 
 # Caminho para o arquivo hadoop-env.sh
 hadoop_env_path="$path_files_hadoop/hadoop-env.sh"
@@ -413,3 +411,4 @@ echo "Quantidade de slaves adicionado no arquivo \$HOME/hadoop/etc/hadoop/worker
 
 #echo "Configuração do Hadoop concluída com sucesso!"
 
+exec bash --login
