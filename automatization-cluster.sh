@@ -40,6 +40,17 @@ EOM
 echo "$lines_to_add" >> "$bash_rc_path"
 echo "Linhas adicionadas ao $bash_rc_path com sucesso!"
 
+path_dot_profile="$HOME/.profile"
+
+lines_to_add_dot_profile=$(cat <<- EOM
+if [ -s ~/.bashrc ]; then
+    source ~/.bashrc;
+fi
+EOM
+)
+
+echo "$lines_to_add_dot_profile" >> "$path_dot_profile"
+
 # Aplicar mudanças no .bashrc (verifique se o comando funciona no seu terminal)
 source "$bash_rc_path"
 
