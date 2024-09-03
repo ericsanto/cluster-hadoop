@@ -266,59 +266,20 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 
     <property>
 
-        <name>yarn.nodemanager.vmem-check-enabled</name>
-
-        <value>false</value>
-
-    </property>
-
-    <property>
-
-        <name>yarn.server.resourcemanager.application.expiry.interval</name>
-
-        <value>60000</value>
-
-    </property>
-
-    <property>
-
         <name>yarn.nodemanager.aux-services</name>
 
         <value>mapreduce_shuffle</value>
 
-    </property>
+  </property>
 
     <property>
 
-        <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
+        <name>yarn.nodemanager.resource.cpu-vcores</name>
 
-        <value>org.apache.hadoop.mapred.ShuffleHandler</value>
-
+        <value>2</value>
+        
     </property>
 
-    <property>
-
-        <name>yarn.log-aggregation-enable</name>
-
-        <value>true</value>
-
-    </property>
-
-    <property>
-
-        <name>yarn.log-aggregation.retain-seconds</name>
-
-        <value>-1</value>
-
-    </property>
-
-    <property>
-
-        <name>yarn.application.classpath</name>
-
-        <value>\$HADOOP_CONF_DIR,\${HADOOP_COMMON_HOME}/share/hadoop/common/*,\${HADOOP_COMMON_HOME}/share/hadoop/common/lib/*,\${HADOOP_HDFS_HOME}/share/hadoop/hdfs/*,\${HADOOP_HDFS_HOME}/share/hadoop/hdfs/lib/*,\${HADOOP_MAPRED_HOME}/share/hadoop/mapreduce/*,\${HADOOP_MAPRED_HOME}/share/hadoop/mapreduce/lib/*,\${HADOOP_YARN_HOME}/share/hadoop/yarn/*,\${HADOOP_YARN_HOME}/share/hadoop/yarn/lib/*</value>
-
-    </property>
 
 </configuration>
 EOM
