@@ -1,6 +1,6 @@
 # Usa Ubuntu 22.04 como imagen base
 FROM ubuntu:22.04
-
+	
 # Informa o autor do container
 LABEL maintainer="ericjesus403@gmail.com"
 
@@ -40,6 +40,7 @@ WORKDIR /home/hadoop
 #Copia o script bash para o container
 COPY ./automatization-cluster.sh /home/hadoop/
 COPY ./script-database-zabbix.sh /usr/local/bin
+COPY ./script-host.sh /home/hadoop/
 
 #Instala o jdk
 RUN wget https://download.oracle.com/java/22/latest/jdk-22_linux-x64_bin.deb && \
@@ -60,13 +61,17 @@ RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.
     mv hadoop-3.4.0 hadoop && \
     rm -r hadoop-3.4.0.tar.gz && \
     chown -R hadoop:hadoop /home/hadoop/hadoop && \
-    chown -R hadoop:hadoop /home/hadoop/automatization-cluster.sh
-    
+    chown -R hadoop:hadoop /home/hadoop/automatization-cluster.sh && \
+    chown -R hadoop:hadoop /home/hadoop/script-host.sh
+
 #instalando Zabbix
 RUN wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     dpkg -i zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     apt update && \
-    apt install -y --no-install-recommends zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent
+    apt install -y --no-install-recommends zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent && \ 
+    apt-get install -y adduser libfontconfig1 musl && \
+    wget https://dl.grafana.com/enterprise/release/grafana-enterprise_11.2.0_amd64.deb && \
+    dpkg -i grafana-enterprise_11.2.0_amd64.deb
 
 # Comando padrão para executar quando o contêiner for iniciado
-CMD [ "/bin/bash" ]
+CMD [ "./script-host.sh"]
