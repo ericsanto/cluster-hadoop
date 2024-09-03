@@ -270,14 +270,14 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 
         <value>mapreduce_shuffle</value>
 
-  </property>
+     </property>
 
     <property>
 
         <name>yarn.nodemanager.resource.cpu-vcores</name>
 
         <value>2</value>
-        
+
     </property>
 
 
