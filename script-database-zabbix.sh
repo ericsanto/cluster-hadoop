@@ -62,3 +62,5 @@ sudo service apache2 start
 
 echo "Servidor Zabbix está pronto para uso. Acesse: localhost/zabbix"
 
+#Faz o balanceamento entre hdfs dos datanodes
+#hdfs balancer –threshold 5
