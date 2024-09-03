@@ -222,9 +222,9 @@ verification_isnumber() {
     done
 }
 
-tot_memory=$(verification_isnumber "Total de memória disponível para containers em cada NodeManager? Valore em Megabytes: ") 
-max_memory=$(verification_isnumber "Memória máxima que um container pode solicitar? Valore em Megabytes: ")
-min_memory=$(verification_isnumber "Memória mínima que um container pode solicitar? Valor em Megabyte: "s)
+tot_memory=$(verification_isnumber "Total de memória disponível para containers em cada NodeManager? Valor em Megabytes: ") 
+max_memory=$(verification_isnumber "Memória máxima que um container pode solicitar? Valor em Megabytes: ")
+min_memory=$(verification_isnumber "Memória mínima que um container pode solicitar? Valor em Megabyte: ")
  
 
 # Caminho para o arquivo yarn-site.xml
@@ -344,71 +344,6 @@ while [[ "$qtd_slave" -gt 0 ]]; do
 done
 
 echo "Quantidade de slaves adicionado no arquivo \$HOME/hadoop/etc/hadoop/workers"
-
-#Criando arquivo para export métricas
-#touch $HOME/namenode.yaml
-
-#path_namenode_yaml = "$HOME/namenode.yaml"
-#lines_to_add_namenode_yaml=$(cat << EOM
-#startDelaySeconds: 0
-#hostPort: localhost:12345
-#rules:
-#  - pattern: "Hadoop<name=(.+), service=(.+), instance=(.+)><>(.+):"
-#    name: "hadoop_$2_$4"
-#    labels:
-#      name: "$1"
-#      instance: "$3"
-#    help: "Hadoop $2 $4"
-#    type: GAUGE
-#EOM
-#)
-
-#echo "$lines_to_add_namenode_yam" >> "$path_namenode_yam"
-
-#mkdir "$HOME/java-jmx"
-
-#path_config_metrics="$HOME/java-jmx"
-
-#file_jmx_prometheus="jmx_prometheus_javaagent-1.0.1.jar"
-
-#mv "$file_jmx_prometheus" "$path_config_metrics"
-
-
-#lines_to_add_jmx_exporter_yaml=$(cat <<- EOM
-#rules:
-#  - pattern: '.*'
-#    name: jmx_metric
-#EOM
-#)
-
-#echo "$lines_to_add_jmx_exporter_yaml" >> "$path_config_metrics/jmx_exporter.yaml"
-
-#Adiciona a configuração de metricas do master aos arquivos hadoop-env.sh e start-dfs.sh
-#master_lines_to_add_hadoop_env_sh=$(cat <<- EOM
-#export HDFS_NAMENODE_OPTS="\$HDFS_NAMENODE_OPTS -javaagent:\$HOME/java-jmx/jmx_prometheus_javaagent-1.0.1.jar=8081:\$HOME/java-jmx/jmx_exporter#.yaml" 
-
-#EOM
-#)
-
-#Adiciona a configuração de metricas do(s) slave(s) aos arquivos hadoop-env.sh e start-dfs.sh
-#slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh=$(cat <<- EOM
-#export HDFS_DATANODE_OPTS="\$HDFS_DATANODE_OPTS -javaagent:\$HOME/java-jmx/jmx_prometheus_javaagent-1.0.1.jar=8081:\$HOME/java-jmx/jmx_exporter#.yaml" 
-#EOM
-#)
-
-
-#path_file_hadoop_start="$HOME/hadoop/sbin/start-dfs.sh"
-
-#if [ $feature = $master ]; then
-#    sed -i '/localhost/d' "$path_file_workers"
-#    echo "$line_to_add_workers_file" >> "$path_file_workers"
-#    echo "$master_lines_to_add_hadoop_env_sh" >> "$hadoop_env_path"
-#    echo "$master_lines_to_add_hadoop_env_sh" >> "$path_file_hadoop_start"
-#else
-#	echo "$slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh" >> "$hadoop_env_path"
-#	echo "$slave_lines_to_add_hadoop_env_sh_and_hadoop_start_dfs_sh" >>  "$path_file_hadoop_start"
-#fi
-
-#echo "Configuração do Hadoop concluída com sucesso!"
+echo "Cluster hadoop configurado com sucesso!"
 
 exec bash --login
