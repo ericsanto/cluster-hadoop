@@ -1,3 +1,9 @@
-sudo systemctl stop ssh
-sudo docker run --network host -t prom/prometheus
+#!/bin/bash
 
+service ssh start
+
+service mysql start
+
+script-database-zabbix.sh
+
+/bin/bash
