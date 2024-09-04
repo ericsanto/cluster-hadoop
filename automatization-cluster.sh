@@ -119,7 +119,7 @@ lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
 
   <property>
         <name>dfs.replication</name>
-        <value>2</value>
+        <value>$qtd_slave</value>
   </property>
 
 
@@ -192,9 +192,6 @@ verification_isnumber() {
 }
 
 tot_memory=$(verification_isnumber "Total de memória disponível para containers em cada NodeManager? Valor em Megabytes: ") 
-max_memory=$(verification_isnumber "Memória máxima que um container pode solicitar? Valor em Megabytes: ")
-min_memory=$(verification_isnumber "Memória mínima que um container pode solicitar? Valor em Megabyte: ")
- 
 
 # Caminho para o arquivo yarn-site.xml
 path_to_add_in_config_yarn_site_xml="$path_files_hadoop/yarn-site.xml"
@@ -218,7 +215,7 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 
     <property>
         <name>yarn.nodemanager.resource.memory-mb</name>
-        <value>4096</value>
+        <value>$tot_memory</value>
     </property>
 
 
