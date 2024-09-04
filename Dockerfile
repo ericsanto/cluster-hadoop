@@ -21,6 +21,7 @@ RUN apt-get update && \
     mysql-server \
     software-properties-common \
     wget \
+    openjdk-11-jdk \
     locales && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -41,13 +42,6 @@ WORKDIR /home/hadoop
 COPY ./automatization-cluster.sh /home/hadoop/
 COPY ./script-database-zabbix.sh /usr/local/bin
 COPY ./script-host.sh /home/hadoop/
-
-#Instala o jdk
-RUN wget https://download.oracle.com/java/22/latest/jdk-22_linux-x64_bin.deb && \
-    wget https://repo.maven.apache.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/1.0.1/jmx_prometheus_javaagent-1.0.1.jar && \
-    dpkg -i jdk-22_linux-x64_bin.deb && \
-    rm jdk-22_linux-x64_bin.deb
-
 
 # Gera uma chave SSH, configura o arquivo authorized_keys e configura o arquivo /etc/ssh/sshd_config
 RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \

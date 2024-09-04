@@ -14,6 +14,13 @@ while true; do
     fi
 done
 
+if [ "$feature" = "$master" ]; then
+    mkdir -p "$HOME/hadoop/hdfs/namenode"
+elif [ "$feature" = "$slave" ]; then
+    mkdir -p "$HOME/hadoop/hdfs/datanode"
+fi
+
+
 read -p "Quantos slaves terá o cluster? obs: Digite apenas números: " qtd_slave
 
 while ! [[ "$qtd_slave"  =~ ^[0-9]+$ ]]; do
@@ -29,7 +36,7 @@ bash_rc_path="$HOME/.bashrc"
 # Linhas a serem adicionadas ao .bashrc
 lines_to_add=$(cat <<- EOM
 # Configuração de variáveis de ambiente para o Hadoop
-export JAVA_HOME=/usr/lib/jvm/jdk-22.0.2-oracle-x64
+export JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64
 export PATH=\$PATH:\$JAVA_HOME/bin
 export HADOOP_HOME="/home/hadoop/hadoop"
 export PATH="\$PATH:\${HADOOP_HOME}/bin"
@@ -46,7 +53,7 @@ hadoop_env_path="$path_files_hadoop/hadoop-env.sh"
 
 # Linhas a serem adicionadas ao hadoop-env.sh
 lines_to_add_in_hadoop_env_sh=$(cat <<- EOM
-export JAVA_HOME=/usr/lib/jvm/jdk-22.0.2-oracle-x64
+export JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64
 export HADOOP_HOME=/home/hadoop/hadoop
 export HADOOP_CONF_DIR="\$HADOOP_HOME/etc/hadoop"
 export PATH="\${PATH}:\${HADOOP_HOME}/bin"
@@ -66,9 +73,9 @@ lines_to_add_in_hadoop_core_site_xml=$(cat <<- EOM
 
     <property>
 
-        <name>fs.default.name</name>
+        <name>fs.defaultFS</name>
 
-        <value>hdfs://master:19000</value>
+        <value>hdfs://master:9000</value>
 
     </property>
 
@@ -87,7 +94,7 @@ echo "$lines_to_add_in_hadoop_core_site_xml" >> "$path_to_add_config_core_site_x
 echo "Linhas adicionadas ao $path_to_add_config_core_site_xml com sucesso!"
 
 # Cria diretórios
-mkdir -p "$HOME/hadoop/dfs"
+
 mkdir -p "$HOME/hadoop/dfs/data"
 mkdir -p "$HOME/hadoop/dfs/namespace_logs"
 
@@ -101,28 +108,20 @@ lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
 <configuration>
 
     <property>
-
-        <name>dfs.replication</name>
-
-        <value>$dfs_replication</value>
-
-    </property>
-
-    <property>
-
         <name>dfs.namenode.name.dir</name>
-
-        <value>\$HOME/hadoop/dfs/namespace_logs</value>
-
+        <value>/home/hadoop/hadoop/hdfs/namenode</value>
     </property>
 
     <property>
-
         <name>dfs.datanode.data.dir</name>
+        <value>/home/hadoop/hadoop/hdfs/datanode</value>
+  </property>
 
-        <value>\$HOME/hadoop/dfs/data</value>
+  <property>
+        <name>dfs.replication</name>
+        <value>2</value>
+  </property>
 
-    </property>
 
 </configuration>
 EOM
@@ -144,53 +143,23 @@ lines_to_add_in_config_mapred_site_xml=$(cat <<- EOM
 <configuration>
 
     <property>
-
-        <name>mapreduce.job.user.name</name>
-
-        <value>hadoop</value>
-
-    </property>
-
-     
-
-    <property>
-
-        <name>yarn.resourcemanager.address</name>
-
-        <value>master:8032</value>
-
-    </property>
-
-    <property> 
-
-        <name>mapreduce.framework.name</name> 
-
-        <value>yarn</value> 
-
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
     </property>
 
     <property>
-
         <name>yarn.app.mapreduce.am.env</name>
-
-        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-
+        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
     </property>
 
     <property>
-
         <name>mapreduce.map.env</name>
-
-        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-
+        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
     </property>
 
     <property>
-
         <name>mapreduce.reduce.env</name>
-
-        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-
+        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
     </property>
 
 </configuration>
@@ -233,92 +202,25 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 <configuration>
 
     <property>
-
         <name>yarn.resourcemanager.hostname</name>
-
         <value>master</value>
-
     </property>
 
     <property>
-
-        <name>yarn.nodemanager.resource.memory-mb</name>
-
-        <value>$tot_memory</value>
-
-    </property>
-
-    <property>
-
-        <name>yarn.scheduler.maximum-allocation-mb</name>
-
-        <value>$max_memory</value>
-
-    </property>
-
-    <property>
-
-        <name>yarn.scheduler.minimum-allocation-mb</name>
-
-        <value>$min_memory</value>
-
-    </property>
-
-    <property>
-
-        <name>yarn.nodemanager.vmem-check-enabled</name>
-
-        <value>false</value>
-
-    </property>
-
-    <property>
-
-        <name>yarn.server.resourcemanager.application.expiry.interval</name>
-
-        <value>60000</value>
-
-    </property>
-
-    <property>
-
         <name>yarn.nodemanager.aux-services</name>
-
         <value>mapreduce_shuffle</value>
-
     </property>
 
     <property>
-
-        <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
-
-        <value>org.apache.hadoop.mapred.ShuffleHandler</value>
-
+        <name>yarn.nodemanager.resource.cpu-vcores</name>
+        <value>2</value>
     </property>
 
     <property>
-
-        <name>yarn.log-aggregation-enable</name>
-
-        <value>true</value>
-
+        <name>yarn.nodemanager.resource.memory-mb</name>
+        <value>4096</value>
     </property>
 
-    <property>
-
-        <name>yarn.log-aggregation.retain-seconds</name>
-
-        <value>-1</value>
-
-    </property>
-
-    <property>
-
-        <name>yarn.application.classpath</name>
-
-        <value>\$HADOOP_CONF_DIR,\${HADOOP_COMMON_HOME}/share/hadoop/common/*,\${HADOOP_COMMON_HOME}/share/hadoop/common/lib/*,\${HADOOP_HDFS_HOME}/share/hadoop/hdfs/*,\${HADOOP_HDFS_HOME}/share/hadoop/hdfs/lib/*,\${HADOOP_MAPRED_HOME}/share/hadoop/mapreduce/*,\${HADOOP_MAPRED_HOME}/share/hadoop/mapreduce/lib/*,\${HADOOP_YARN_HOME}/share/hadoop/yarn/*,\${HADOOP_YARN_HOME}/share/hadoop/yarn/lib/*</value>
-
-    </property>
 
 </configuration>
 EOM
