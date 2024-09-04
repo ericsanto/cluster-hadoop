@@ -29,7 +29,7 @@ bash_rc_path="$HOME/.bashrc"
 # Linhas a serem adicionadas ao .bashrc
 lines_to_add=$(cat <<- EOM
 # Configuração de variáveis de ambiente para o Hadoop
-export JAVA_HOME=/usr/lib/jvm/jdk-22.0.2-oracle-x64
+export JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64
 export PATH=\$PATH:\$JAVA_HOME/bin
 export HADOOP_HOME="/home/hadoop/hadoop"
 export PATH="\$PATH:\${HADOOP_HOME}/bin"
@@ -46,7 +46,7 @@ hadoop_env_path="$path_files_hadoop/hadoop-env.sh"
 
 # Linhas a serem adicionadas ao hadoop-env.sh
 lines_to_add_in_hadoop_env_sh=$(cat <<- EOM
-export JAVA_HOME=/usr/lib/jvm/jdk-22.0.2-oracle-x64
+export JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64
 export HADOOP_HOME=/home/hadoop/hadoop
 export HADOOP_CONF_DIR="\$HADOOP_HOME/etc/hadoop"
 export PATH="\${PATH}:\${HADOOP_HOME}/bin"
@@ -66,9 +66,9 @@ lines_to_add_in_hadoop_core_site_xml=$(cat <<- EOM
 
     <property>
 
-        <name>fs.default.name</name>
+        <name>fs.defaultFS</name>
 
-        <value>hdfs://master:19000</value>
+        <value>hdfs://master:9000</value>
 
     </property>
 
@@ -143,55 +143,37 @@ path_to_add_in_config_map_reduce_xml="$path_files_hadoop/mapred-site.xml"
 lines_to_add_in_config_mapred_site_xml=$(cat <<- EOM
 <configuration>
 
-    <property>
+  <property>
 
-        <name>mapreduce.job.user.name</name>
+    <name>mapreduce.framework.name</name>
 
-        <value>hadoop</value>
+    <value>yarn</value>
 
-    </property>
+  </property>
 
-     
+  <property>
 
-    <property>
+    <name>yarn.app.mapreduce.am.env</name>
 
-        <name>yarn.resourcemanager.address</name>
+    <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
 
-        <value>master:8032</value>
+  </property>
 
-    </property>
+  <property>
 
-    <property> 
+    <name>mapreduce.map.env</name>
 
-        <name>mapreduce.framework.name</name> 
+    <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
 
-        <value>yarn</value> 
+  </property>
 
-    </property>
+  <property>
 
-    <property>
+    <name>mapreduce.reduce.env</name>
 
-        <name>yarn.app.mapreduce.am.env</name>
+    <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
 
-        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-
-    </property>
-
-    <property>
-
-        <name>mapreduce.map.env</name>
-
-        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-
-    </property>
-
-    <property>
-
-        <name>mapreduce.reduce.env</name>
-
-        <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-
-    </property>
+  </property>
 
 </configuration>
 EOM
@@ -278,6 +260,14 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 
         <value>2</value>
 
+    </property>
+
+    <property>
+
+        <name>yarn.scheduler.minimum-allocation-vcores</name>
+	
+	    <value>2</value>
+        
     </property>
 
 
