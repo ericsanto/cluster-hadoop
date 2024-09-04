@@ -14,6 +14,13 @@ while true; do
     fi
 done
 
+if [ "$feature" = "$master" ]; then
+    mkdir -p "$HOME/hdfs/namenode"
+elif [ "$feature" = "$slave" ]; then
+    mkdir -p "$HOME/hadoop/dfs/datanode"
+fi
+
+
 read -p "Quantos slaves terá o cluster? obs: Digite apenas números: " qtd_slave
 
 while ! [[ "$qtd_slave"  =~ ^[0-9]+$ ]]; do
@@ -87,7 +94,7 @@ echo "$lines_to_add_in_hadoop_core_site_xml" >> "$path_to_add_config_core_site_x
 echo "Linhas adicionadas ao $path_to_add_config_core_site_xml com sucesso!"
 
 # Cria diretórios
-mkdir -p "$HOME/hadoop/dfs"
+
 mkdir -p "$HOME/hadoop/dfs/data"
 mkdir -p "$HOME/hadoop/dfs/namespace_logs"
 
@@ -101,28 +108,20 @@ lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
 <configuration>
 
     <property>
-
-        <name>dfs.replication</name>
-
-        <value>$dfs_replication</value>
-
-    </property>
-
-    <property>
-
         <name>dfs.namenode.name.dir</name>
-
-        <value>\$HOME/hadoop/dfs/namespace_logs</value>
-
+        <value>/home/hadoop/hadoop/hdfs/namenode</value>
     </property>
 
     <property>
-
         <name>dfs.datanode.data.dir</name>
+        <value>/home/hadoop/hadoop/hdfs/datanode</value>
+  </property>
 
-        <value>\$HOME/hadoop/dfs/data</value>
+  <property>
+        <name>dfs.replication</name>
+        <value>2</value>
+  </property>
 
-    </property>
 
 </configuration>
 EOM
@@ -143,37 +142,25 @@ path_to_add_in_config_map_reduce_xml="$path_files_hadoop/mapred-site.xml"
 lines_to_add_in_config_mapred_site_xml=$(cat <<- EOM
 <configuration>
 
-  <property>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
 
-    <name>mapreduce.framework.name</name>
+    <property>
+        <name>yarn.app.mapreduce.am.env</name>
+        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
+    </property>
 
-    <value>yarn</value>
+    <property>
+        <name>mapreduce.map.env</name>
+        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
+    </property>
 
-  </property>
-
-  <property>
-
-    <name>yarn.app.mapreduce.am.env</name>
-
-    <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-
-  </property>
-
-  <property>
-
-    <name>mapreduce.map.env</name>
-
-    <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-
-  </property>
-
-  <property>
-
-    <name>mapreduce.reduce.env</name>
-
-    <value>HADOOP_MAPRED_HOME=\$HOME/hadoop</value>
-
-  </property>
+    <property>
+        <name>mapreduce.reduce.env</name>
+        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
+    </property>
 
 </configuration>
 EOM
@@ -233,6 +220,7 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
         <name>yarn.nodemanager.resource.memory-mb</name>
         <value>4096</value>
     </property>
+
 
 </configuration>
 EOM
