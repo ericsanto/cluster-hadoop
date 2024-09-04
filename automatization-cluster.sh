@@ -17,7 +17,7 @@ done
 if [ "$feature" = "$master" ]; then
     mkdir -p "$HOME/hdfs/namenode"
 elif [ "$feature" = "$slave" ]; then
-    mkdir -p "$HOME/hadoop/dfs/datanode"
+    mkdir -p "$HOME/hdfs/datanode"
 fi
 
 
