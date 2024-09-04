@@ -215,61 +215,24 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 <configuration>
 
     <property>
-
         <name>yarn.resourcemanager.hostname</name>
-
         <value>master</value>
-
     </property>
 
     <property>
-
-        <name>yarn.nodemanager.resource.memory-mb</name>
-
-        <value>$tot_memory</value>
-
-    </property>
-
-    <property>
-
-        <name>yarn.scheduler.maximum-allocation-mb</name>
-
-        <value>$max_memory</value>
-
-    </property>
-
-    <property>
-
-        <name>yarn.scheduler.minimum-allocation-mb</name>
-
-        <value>$min_memory</value>
-
-    </property>
-
-    <property>
-
         <name>yarn.nodemanager.aux-services</name>
-
         <value>mapreduce_shuffle</value>
-
-     </property>
+    </property>
 
     <property>
-
         <name>yarn.nodemanager.resource.cpu-vcores</name>
-
         <value>2</value>
-
     </property>
 
     <property>
-
-        <name>yarn.scheduler.minimum-allocation-vcores</name>
-	
-	    <value>2</value>
-        
+        <name>yarn.nodemanager.resource.memory-mb</name>
+        <value>4096</value>
     </property>
-
 
 </configuration>
 EOM
