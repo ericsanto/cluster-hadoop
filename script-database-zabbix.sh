@@ -56,9 +56,26 @@ sudo chmod 777 /var/run/mysqld
 
 echo "$line_to_add_zabbix_conf" | sudo tee "$path_file_zabbix"
 
+path_zabbix_agent_conf="/etc/zabbix/zabbix_agentd.conf"
+
+cp "$path_zabbix_agent_conf" "$path_zabbix_agent_conf.bak"
+
+sed -i '/^Server=/d' "$path_zabbix_agent_conf"
+sed -i '/^ServerActive=/d' "$path_zabbix_agent_conf"
+sed -i '/^Hostname=/d' "$path_zabbix_agent_conf"
+
+server="master"
+echo "Server=$server" | sudo tee -a "$path_zabbix_agent_conf"
+echo "ServerActive=$server" | sudo tee -a "$path_zabbix_agent_conf"
+
+hostname=$(echo $HOSTNAME)
+echo "Hostname=$hostname" | sudo tee -a "$path_zabbix_agent_conf"
+
 sudo service zabbix-server start
 sudo service zabbix-agent start
-sudo service apache2 start
+sudo service apache2 start 
 
 echo "Servidor Zabbix está pronto para uso. Acesse: localhost/zabbix"
 
+#Faz o balanceamento entre hdfs dos datanodes
+#hdfs balancer –threshold 5
