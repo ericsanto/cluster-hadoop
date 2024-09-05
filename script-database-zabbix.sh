@@ -43,18 +43,18 @@ EOF
 
 path_file_zabbix="/etc/zabbix/zabbix_server.conf"
 
-sudo sed -i '/DBPassword/d' "$path_file_zabbix"
+#sudo sed -i '/DBPassword/d' "$path_file_zabbix"
 
-line_to_add_zabbix_conf=$(cat <<- EOM
-DBPassword=$ZABBIX_PASSWORD
-EOM
-)
+#line_to_add_zabbix_conf=$(cat <<- EOM
+#DBPassword=$ZABBIX_PASSWORD
+#EOM
+#)
 
 sudo gpasswd -a "$USER_HADOOP" "$GROUP_MYSQL"
 sudo chmod 777 /var/run/mysqld
 
 
-echo "$line_to_add_zabbix_conf" | sudo tee "$path_file_zabbix"
+#echo "$line_to_add_zabbix_conf" | sudo tee "$path_file_zabbix"
 
 path_zabbix_agent_conf="/etc/zabbix/zabbix_agentd.conf"
 
@@ -77,13 +77,26 @@ if [[ "$hostname_format" = "$hostname_compare" ]]; then
 	echo "ServerActive=$server" | sudo tee -a "$path_zabbix_agent_conf"
 	echo "Hostname=$HOSTNAME" | sudo tee -a "$path_zabbix_agent_conf"
 	sudo service zabbix-agent start
+	echo "Arquivo /etc/zabbix/zabbix-agentd.conf configurado com sucesso"
 fi
 
+if [[ "$hostname_format" = "$server" ]]; then
+	sudo sed -i '/DBPassword/d' "$path_file_zabbix"
 
-sudo service zabbix-server start
-sudo service apache2 start 
+	line_to_add_zabbix_conf=$(cat <<- EOM
+	DBPassword=$ZABBIX_PASSWORD
+	EOM
+	)
+	
+	echo "$line_to_add_zabbix_conf" | sudo tee "$path_file_zabbix"
 
-echo "Servidor Zabbix está pronto para uso. Acesse: localhost/zabbix"
+	sudo service zabbix-server start
+	sudo service apache2 start
+      	echo "Servidor Zabbix está pronto para uso. Acesse: localhost/zabbix"
+
+fi
+
+#echo "Servidor Zabbix está pronto para uso. Acesse: localhost/zabbix"
 
 #Faz o balanceamento entre hdfs dos datanodes
 #hdfs balancer –threshold 5
