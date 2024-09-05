@@ -88,7 +88,7 @@ if [[ "$hostname_format" = "$server" ]]; then
 	EOM
 	)
 	
-	echo "$line_to_add_zabbix_conf" | sudo tee "$path_file_zabbix"
+	echo "$line_to_add_zabbix_conf" | sudo tee -a "$path_file_zabbix"
 
 	sudo service zabbix-server start
 	sudo service apache2 start
