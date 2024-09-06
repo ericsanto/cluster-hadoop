@@ -241,7 +241,9 @@ user="hadoop"
 while [[ "$qtd_slave" -gt 0 ]]; do
     line_to_add_workers_file="slave$qtd_slave"
     echo "$line_to_add_workers_file" >> "$path_file_workers"
-    ssh-copy-id "$user"@"$line_to_add_workers_file"
+    if [[ "$feature" = "$master" ]]; then
+    	ssh-copy-id "$user"@"$line_to_add_workers_file"
+    fi	
     qtd_slave=$((qtd_slave - 1)) 
 done
 
