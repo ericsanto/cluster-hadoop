@@ -2,6 +2,7 @@
 
 master="master"
 slave="slave"
+user="hadoop"
 
 while true; do
     read -p "Digite a característica do nó deste pc: Master/Slave: " feature
@@ -16,6 +17,7 @@ done
 
 if [ "$feature" = "$master" ]; then
     mkdir -p "$HOME/hadoop/hdfs/namenode"
+    ssh-copy-id "$user"@"$master"
 elif [ "$feature" = "$slave" ]; then
     mkdir -p "$HOME/hadoop/hdfs/datanode"
 fi
@@ -236,7 +238,7 @@ echo "Linhas adicionadas ao $path_to_add_in_config_yarn_site_xml com sucesso!"
 path_file_workers="/home/hadoop/hadoop/etc/hadoop/workers"
 sed -i '/localhost/d' "$path_file_workers"
 
-user="hadoop"
+#user="hadoop"
 
 while [[ "$qtd_slave" -gt 0 ]]; do
     line_to_add_workers_file="slave$qtd_slave"
@@ -246,6 +248,8 @@ while [[ "$qtd_slave" -gt 0 ]]; do
     fi	
     qtd_slave=$((qtd_slave - 1)) 
 done
+
+#ssh-copy-id "$user"@"$master"
 
 echo "Quantidade de slaves adicionado no arquivo \$HOME/hadoop/etc/hadoop/workers"
 
