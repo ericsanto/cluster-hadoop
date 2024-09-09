@@ -4,6 +4,24 @@ master="master"
 slave="slave"
 user="hadoop"
 
+remove_with_sed() {
+        local file_remove_line="$1"
+        sed -i '/<configuration>/,/<\/configuration>/d' "$file_remove_line"
+}
+
+create_backup_file() {
+        local file_ori="$1"
+        cp "$file_ori" "$file_ori.bak"
+        echo "Backup do arquivo $file_ori criado como $file_ori.bak"
+}
+
+send_content_to_file() {
+        local content="$1"
+        local file="$2"
+        echo "$content" >> "$file"
+        echo "Linhas adicionadas ao $file com sucesso!"
+}
+
 while true; do
     read -p "Digite a característica do nó deste pc: Master/Slave: " feature
     feature=${feature,,}
@@ -46,8 +64,7 @@ EOM
 )
 
 # Adicionar linhas ao .bashrc
-echo "$lines_to_add" >> "$bash_rc_path"
-echo "Linhas adicionadas ao $bash_rc_path com sucesso!"
+send_content_to_file "$lines_to_add" "$bash_rc_path"
 
 
 # Caminho para o arquivo hadoop-env.sh
@@ -65,8 +82,7 @@ EOM
 )
 
 # Adicionar linhas ao hadoop-env.sh
-echo "$lines_to_add_in_hadoop_env_sh" >> "$hadoop_env_path"
-echo "Linhas adicionadas ao $hadoop_env_path com sucesso!"
+send_content_to_file "$lines_to_add_in_hadoop_env_sh" "$hadoop_env_path"
 
 # Caminho para o arquivo core-site.xml
 path_to_add_config_core_site_xml="$path_files_hadoop/core-site.xml"
@@ -86,17 +102,15 @@ EOM
 )
 
 # Faz o backup do arquivo core-site.xml
-cp "$path_to_add_config_core_site_xml" "$path_to_add_config_core_site_xml.bak"
+create_backup_file "$path_to_add_config_core_site_xml"
 
 # Remove as linhas <configuration></configuration> do arquivo
-sed -i '/<configuration>/,/<\/configuration>/d' "$path_to_add_config_core_site_xml"
+remove_with_sed "$path_to_add_config_core_site_xml"
 
 # Adiciona as configurações ao arquivo core-site.xml
-echo "$lines_to_add_in_hadoop_core_site_xml" >> "$path_to_add_config_core_site_xml"
-echo "Linhas adicionadas ao $path_to_add_config_core_site_xml com sucesso!"
+send_content_to_file "$lines_to_add_in_hadoop_core_site_xml"  "$path_to_add_config_core_site_xml"
 
 # Cria diretórios
-
 mkdir -p "$HOME/hadoop/dfs/data"
 mkdir -p "$HOME/hadoop/dfs/namespace_logs"
 
@@ -130,16 +144,35 @@ EOM
 )
 
 # Faz o backup do arquivo hdfs-site.xml
-cp "$path_to_add_config_hdfs_site_xml" "$path_to_add_config_hdfs_site_xml.bak"
+create_backup_file "$path_to_add_config_hdfs_site_xml"
 
 # Remove as linhas <configuration></configuration> do arquivo
-sed -i '/<configuration>/,/<\/configuration>/d' "$path_to_add_config_hdfs_site_xml"
+remove_with_sed  "$path_to_add_config_hdfs_site_xml"
 
 # Adiciona as configurações ao arquivo hdfs-site.xml
-echo "$lines_to_add_in_config_hdfs_site_xml" >> "$path_to_add_config_hdfs_site_xml"
-echo "Linhas adicionadas ao $path_to_add_config_hdfs_site_xml com sucesso!"
+send_content_to_file "$lines_to_add_in_config_hdfs_site_xml" "$path_to_add_config_hdfs_site_xml"
+
 
 # Caminho para o arquivo mapred-site.xml
+# 
+# remove_with_sed() {
+# 	local file_remove_line="$1"
+# 	sed -i '/<configuration>/,/<\/configuration>/d' "$file_remove_line"
+# }
+# 
+# create_backup_file() {
+# 	local file_ori="$1"
+# 	cp "$file_ori" "$file_ori.bak"
+# 	echo "Backup do arquivo $file_ori criado como $file_ori.bak"
+# }
+# 
+# send_content_to_file() {
+# 	local content="$1"
+# 	local file="$2"
+# 	echo "$content" >> "$file"
+# 	echo "Linhas adicionadas ao $file com sucesso!"
+# }
+# 
 path_to_add_in_config_map_reduce_xml="$path_files_hadoop/mapred-site.xml"
 lines_to_add_in_config_mapred_site_xml=$(cat <<- EOM
 <configuration>
@@ -168,15 +201,22 @@ lines_to_add_in_config_mapred_site_xml=$(cat <<- EOM
 EOM
 )
 
+
+remove_with_sed "$path_to_add_in_config_map_reduce_xml"
+
+create_backup_file "$path_to_add_in_config_map_reduce_xml"
+
+send_content_to_file "$lines_to_add_in_config_mapred_site_xml" "$path_to_add_in_config_map_reduce_xml"
+
 # Faz o backup do arquivo mapred-site.xml
-cp "$path_to_add_in_config_map_reduce_xml" "$path_to_add_in_config_map_reduce_xml.bak"
+#cp "$path_to_add_in_config_map_reduce_xml" "$path_to_add_in_config_map_reduce_xml.bak"
 
 # Remove as linhas <configuration></configuration> do arquivo
-sed -i '/<configuration>/,/<\/configuration>/d' "$path_to_add_in_config_map_reduce_xml"
+#sed -i '/<configuration>/,/<\/configuration>/d' "$path_to_add_in_config_map_reduce_xml"
 
 # Adiciona as configurações ao arquivo mapred-site.xml
-echo "$lines_to_add_in_config_mapred_site_xml" >> "$path_to_add_in_config_map_reduce_xml"
-echo "Linhas adicionadas ao $path_to_add_in_config_map_reduce_xml com sucesso!"
+#echo "$lines_to_add_in_config_mapred_site_xml" >> "$path_to_add_in_config_map_reduce_xml"
+#echo "Linhas adicionadas ao $path_to_add_in_config_map_reduce_xml com sucesso!"
 
 
 verification_isnumber() {
@@ -226,14 +266,20 @@ EOM
 )
 
 # Remove as linhas <configuration></configuration> do arquivo
-sed -i '/<configuration>/,/<\/configuration>/d' "$path_to_add_in_config_yarn_site_xml"
+#sed -i '/<configuration>/,/<\/configuration>/d' "$path_to_add_in_config_yarn_site_xml"
 
 # Faz o backup do arquivo yarn-site.xml
-cp "$path_to_add_in_config_yarn_site_xml" "$path_to_add_in_config_yarn_site_xml.bak"
+#cp "$path_to_add_in_config_yarn_site_xml" "$path_to_add_in_config_yarn_site_xml.bak"
 
 # Adiciona as configurações ao arquivo yarn-site.xml
-echo "$line_to_add_in_config_yarn_site_xml" >> "$path_to_add_in_config_yarn_site_xml"
-echo "Linhas adicionadas ao $path_to_add_in_config_yarn_site_xml com sucesso!"
+#echo "$line_to_add_in_config_yarn_site_xml" >> "$path_to_add_in_config_yarn_site_xml"
+#echo "Linhas adicionadas ao $path_to_add_in_config_yarn_site_xml com sucesso!"
+
+remove_with_sed "$path_to_add_in_config_yarn_site_xml"
+ 
+create_backup_file "$path_to_add_in_config_yarn_site_xml"
+
+send_content_to_file "$line_to_add_in_config_yarn_site_xml" "$path_to_add_in_config_yarn_site_xml" 
 
 path_file_workers="/home/hadoop/hadoop/etc/hadoop/workers"
 sed -i '/localhost/d' "$path_file_workers"
