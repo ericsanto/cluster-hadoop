@@ -62,8 +62,7 @@ RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.
 RUN wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     dpkg -i zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     apt update && \
-    apt install -y --no-install-recommends zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent
-    
+    apt install -y --no-install-recommends zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent2
     
 RUN apt install -y adduser libfontconfig1 musl && \
     wget https://dl.grafana.com/enterprise/release/grafana-enterprise_11.2.0_amd64.deb && \
