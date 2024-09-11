@@ -56,7 +56,7 @@ sudo chmod 777 /var/run/mysqld
 
 #echo "$line_to_add_zabbix_conf" | sudo tee "$path_file_zabbix"
 
-path_zabbix_agent_conf="/etc/zabbix/zabbix_agentd.conf"
+path_zabbix_agent_conf="/etc/zabbix/zabbix_agent2.conf"
 
 #cp "$path_zabbix_agent_conf" "$path_zabbix_agent_conf.bak"
 
@@ -76,7 +76,7 @@ if [[ "$hostname_format" = "$hostname_compare" ]]; then
 	echo "Server=$server" | sudo tee -a "$path_zabbix_agent_conf"
 	echo "ServerActive=$server" | sudo tee -a "$path_zabbix_agent_conf"
 	echo "Hostname=$HOSTNAME" | sudo tee -a "$path_zabbix_agent_conf"
-	sudo service zabbix-agent start
+	sudo service zabbix-agent2 start
 	echo "Arquivo /etc/zabbix/zabbix-agentd.conf configurado com sucesso"
 fi
 
