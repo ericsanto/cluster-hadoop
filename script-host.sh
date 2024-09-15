@@ -8,6 +8,6 @@ service grafana-server start
 
 service ssh start
 
-script-database-zabbix.sh
+/usr/local/bin/script-database-zabbix.sh
 
 /bin/bash
