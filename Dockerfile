@@ -32,7 +32,6 @@ RUN echo "root:default" | chpasswd && \
     useradd -m -d /home/hadoop -s /bin/bash hadoop && \
     echo "hadoop:default" | chpasswd && \
     adduser hadoop sudo && \
-    passwd -e hadoop && \
     echo 'hadoop ALL=(ALL) NOPASSWD: /usr/bin/mysql, /usr/bin/zcat, /usr/sbin/service' >> /etc/sudoers
 
 #Define o diretório de trabalho
