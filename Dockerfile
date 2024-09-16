@@ -41,6 +41,7 @@ WORKDIR /home/hadoop
 COPY ./automatization-cluster.sh /home/hadoop/
 COPY ./script-database-zabbix.sh /usr/local/bin
 COPY ./script-host.sh /home/hadoop/
+COPY ./verification-cluster.sh /home/hadoop/
 
 # Gera uma chave SSH, configura o arquivo authorized_keys e configura o arquivo /etc/ssh/sshd_config
 RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
