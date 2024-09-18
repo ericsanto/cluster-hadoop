@@ -60,6 +60,10 @@ export JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64
 export PATH=\$PATH:\$JAVA_HOME/bin
 export HADOOP_HOME="/home/hadoop/hadoop"
 export PATH="\$PATH:\${HADOOP_HOME}/bin"
+export SPARK_HOME=/home/hadoop/spark
+export PATH=\$PATH:\$SPARK_HOME/bin
+export YARN_CONF_DIR=\$HADOOP_HOME/etc/hadoop
+export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop
 EOM
 )
 
@@ -298,6 +302,47 @@ done
 #ssh-copy-id "$user"@"$master"
 
 echo "Quantidade de slaves adicionado no arquivo \$HOME/hadoop/etc/hadoop/workers"
+
+path_spark_conf_dir_default="/home/hadoop/spark/conf/spark-defaults.conf.template"
+path_spark_new_conf_dir="/home/hadoop/spark/conf/spark-defaults.conf"
+
+cp "$path_spark_conf_dir_default" "$path_spark_new_conf_dir"
+
+lines_to_add_spark_new_conf_dir=$(cat <<- EOM
+# Configurar o Spark para usar o YARN como gerenciador de recursos
+spark.master                        yarn
+
+# Configurar o modo de deploy em cluster (opcional, pode ser "client" ou "cluster")
+spark.submit.deployMode              cluster
+
+# Quantidade de memória para o ApplicationMaster (AM) no YARN
+spark.yarn.am.memory                 1G
+
+# Memória alocada para cada executor
+spark.executor.memory                2G
+
+# Número de núcleos de CPU para cada executor
+spark.executor.cores                 2
+
+# Número de executores (pode ajustar conforme o tamanho do cluster)
+spark.executor.instances             4
+
+# Memória alocada para o driver
+spark.driver.memory                  1G
+
+# Habilitar logs de eventos para monitoramento
+spark.eventLog.enabled               true
+
+# Diretório no HDFS onde os logs de eventos serão armazenados
+spark.eventLog.dir                   hdfs:///spark-logs
+
+
+# Configura a prioridade do job Spark no YARN (opcional)
+spark.yarn.queue                     default
+EOM
+)
+
+send_content_to_file "$lines_to_add_spark_new_conf_dir"  "$path_spark_new_conf_dir"
 
 echo "Cluster hadoop configurado com sucesso!"
 
