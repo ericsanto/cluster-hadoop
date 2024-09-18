@@ -47,26 +47,33 @@ COPY ./verification-cluster.sh /home/hadoop/
 RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
     mkdir -p /home/hadoop/.ssh && \
     ssh-keygen -t rsa -b 4096 -f /home/hadoop/.ssh/id_rsa -N "" && \
-    chown -R hadoop:hadoop /home/hadoop/.ssh
+    chown -R hadoop:hadoop /home/hadoop/.ssh && \
+    chmod +x /home/hadoop/verification-cluster.sh
 
-#Instala o hadoop e altera as permissões da pasta hadoop
+#Instala o hadoop, altera as permissões da pasta hadoop e instala o spark
 RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.gz && \
     tar -xzf hadoop-3.4.0.tar.gz && \
     mv hadoop-3.4.0 hadoop && \
     rm -r hadoop-3.4.0.tar.gz && \
     chown -R hadoop:hadoop /home/hadoop/hadoop && \
     chown -R hadoop:hadoop /home/hadoop/automatization-cluster.sh && \
-    chown -R hadoop:hadoop /home/hadoop/script-host.sh
+    chown -R hadoop:hadoop /home/hadoop/script-host.sh && \
+    wget https://dlcdn.apache.org/spark/spark-3.5.2/spark-3.5.2-bin-hadoop3.tgz && \
+    tar -xzvf spark-3.5.2-bin-hadoop3.tgz && \
+    mv spark-3.5.2-bin-hadoop3 spark && \
+    rm -r spark-3.5.2-bin-hadoop3.tgz
 
 #instalando Zabbix
 RUN wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     dpkg -i zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     apt update && \
-    apt install -y --no-install-recommends zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent2
+    apt install -y --no-install-recommends zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent2 && \
+    rm -r zabbix-release_7.0-2+ubuntu22.04_all.deb
     
 RUN apt install -y adduser libfontconfig1 musl && \
     wget https://dl.grafana.com/enterprise/release/grafana-enterprise_11.2.0_amd64.deb && \
-    dpkg -i grafana-enterprise_11.2.0_amd64.deb
+    dpkg -i grafana-enterprise_11.2.0_amd64.deb && \
+    rm -r grafana-enterprise_11.2.0_amd64.deb
 
 # Comando padrão para executar quando o contêiner for iniciado
 ENTRYPOINT [ "./script-host.sh"]
