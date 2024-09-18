@@ -4,7 +4,7 @@ path_file_workers="$HADOOP_HOME/etc/hadoop/workers"
 stop_hadoop_cluster="$HADOOP_HOME/sbin/stop-all.sh"
 start_hadoop_cluster="$HADOOP_HOME/sbin/start-all.sh"
 
-while IFS= read -p linha; do
+while IFS= read linha; do
 	sleep 200
 	status_code=$(curl -o /dev/null -s -w "%{http_code}" "$linha:9864") 
 	if [[ "$status_code" != 200 ]]; then
