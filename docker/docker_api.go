@@ -1,16 +1,26 @@
 package docker
 
 import (
+	"api/controllers"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
 	containertypes "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 )
+
+func LoginDockerCli() {
+	cli, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		log.Printf("Erro ao conectar o cliente Docker: %s", err)
+		return
+	}
+
+	defer cli.Close()
+}
 
 // Lista containers
 func GetAllContainer() ([]types.Container, error) {
@@ -84,14 +94,14 @@ func StartContainer(containerID string) ([]types.Container, error) {
 	ctx := context.Background()
 
 	if err := cli.ContainerStart(ctx, containerID[:10], containertypes.StartOptions{}); err != nil {
-		log.Println("Erro ao iniciar container %s:%s", containerID[:10], err)
+		log.Printf("Erro ao iniciar container %s:%s", containerID[:10], err)
 		return nil, err
 	}
 
 	return nil, err
 }
 
-func StatsContainer(containerID string) (*container.StatsResponse, error) {
+func StatsContainer(containerID string) (*containertypes.StatsResponse, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		log.Printf("Erro ao conectar cliente ao Docker: %s", err)
@@ -105,12 +115,12 @@ func StatsContainer(containerID string) (*container.StatsResponse, error) {
 	stats, err := cli.ContainerStats(ctx, containerID[:10], false)
 
 	if err != nil {
-		fmt.Errorf("Erro ao obter métricas %s", err)
+		log.Printf("Erro ao obter métricas %s", err)
 	}
 
 	defer stats.Body.Close()
 
-	var statsData container.StatsResponse
+	var statsData containertypes.StatsResponse
 
 	err = json.NewDecoder(stats.Body).Decode(&statsData)
 
@@ -120,4 +130,50 @@ func StatsContainer(containerID string) (*container.StatsResponse, error) {
 	}
 
 	return &statsData, nil
+}
+
+func GetInspectContainer(containerID string) (types.ContainerJSON, error) {
+	cli, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		log.Printf("Erro ao conectar cliente ao Docker: %s", err)
+	}
+
+	defer cli.Close()
+
+	ctx := context.Background()
+
+	inspectData, err := cli.ContainerInspect(ctx, containerID)
+
+	if err != nil {
+		log.Printf("Erro ao buscar dados do container: %s", err)
+	}
+
+	return inspectData, nil
+}
+
+func UpdateContainer(containerID string, Config controllers.UpdateRequestConfigContainer) (containertypes.ContainerUpdateOKBody, error) {
+	cli, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		log.Printf("Erro ao conectar cliente ao Docker: %s", err)
+	}
+
+	defer cli.Close()
+
+	ctx := context.Background()
+
+	configUpdate := containertypes.UpdateConfig{
+		Resources: containertypes.Resources{
+			NanoCPUs:   Config.NanoCpus,
+			Memory:     Config.MemoryRam,
+			MemorySwap: Config.MemorySwap,
+		},
+	}
+
+	containerUpdate, err := cli.ContainerUpdate(ctx, containerID, configUpdate)
+
+	if err != nil {
+		log.Printf("Erro ao conectar com SDK Docker")
+	}
+
+	return containerUpdate, nil
 }
