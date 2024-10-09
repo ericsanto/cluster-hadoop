@@ -42,14 +42,16 @@ COPY ./automatization-cluster.sh /home/hadoop/
 COPY ./script-database-zabbix.sh /usr/local/bin
 COPY ./script-host.sh /home/hadoop/
 COPY ./verification-cluster.sh /home/hadoop/
+COPY ./request-script.sh /home/hadoop
 
 # Gera uma chave SSH, configura o arquivo authorized_keys e configura o arquivo /etc/ssh/sshd_config
 RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
     mkdir -p /home/hadoop/.ssh && \
     ssh-keygen -t rsa -b 4096 -f /home/hadoop/.ssh/id_rsa -N "" && \
     chown -R hadoop:hadoop /home/hadoop/.ssh && \
-    chmod +x /home/hadoop/verification-cluster.sh
-
+    chmod +x /home/hadoop/verification-cluster.sh && \
+    chmod +x /home/hadoop/request-script.sh
+    
 #Instala o hadoop, altera as permissões da pasta hadoop e instala o spark
 RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.gz && \
     tar -xzf hadoop-3.4.0.tar.gz && \
