@@ -13,4 +13,6 @@ func ConfigurationsRoutes(e *echo.Echo) {
 	e.POST("/api/:id/stop-container", server.APIStopContainerHandle)
 	e.POST("/api/:id/start-container", server.APIStartContainerHandle)
 	e.GET("/api/containers/:id/statics", server.APIStatsContainerHandle)
+	e.GET("/api/containers/:id/inspect", server.APIInspectContainer)
+	e.POST("/api/containers/:id/update", server.APIUpdateContainerHandle)
 }
