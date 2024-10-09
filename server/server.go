@@ -1,22 +1,12 @@
 package server
 
 import (
+	"api/controllers"
 	"api/docker"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
-
-type StopAndStartContainerRequest struct {
-	ContainerID string `json:"container_id"`
-}
-
-type StatsContainer struct {
-	StopAndStartContainerRequest
-	CPUUsage     float64 `json:"cpu_usage"`
-	RAMUsage     float64 `json:"ram_usage"`
-	NetworkUsage float64 `json:"network_usage"`
-}
 
 func APIListAllContainerHandler(c echo.Context) error {
 	container, err := docker.GetAllContainer()
@@ -70,5 +60,38 @@ func APIStatsContainerHandle(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, statsData)
+
+}
+
+func APIInspectContainer(c echo.Context) error {
+
+	containerID := c.Param("id")
+
+	inspectData, err := docker.GetInspectContainer(containerID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, map[string]string{"error": "Erro ao inspecionar container"})
+	}
+
+	return c.JSON(http.StatusOK, inspectData)
+}
+
+func APIUpdateContainerHandle(c echo.Context) error {
+
+	var config controllers.UpdateRequestConfigContainer
+
+	if err := c.Bind(&config); err != nil {
+		c.JSON(http.StatusInternalServerError, map[string]string{"error": "erro ao deserializar dados"})
+	}
+
+	containerID := c.Param("id")
+
+	containerUpdate, err := docker.UpdateContainer(containerID, config)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, map[string]string{"message": "Erro ao atualizar container"})
+	}
+
+	return c.JSON(http.StatusOK, containerUpdate)
 
 }
