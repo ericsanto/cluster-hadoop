@@ -22,31 +22,55 @@ send_content_to_file() {
         echo "Linhas adicionadas ao $file com sucesso!"
 }
 
-while true; do
-    read -p "Digite a característica do nó deste pc: Master/Slave: " feature
-    feature=${feature,,}
+#while true; do
+#    read -p "Digite a característica do nó deste pc: Master/Slave: " feature
+#    feature=${feature,,}
 
-    if [ "$feature" = "$master" ] || [ "$feature" = "$slave" ]; then
-        break
-    else
-        echo "Entrada inválida. Digite apenas $master ou $slave"
-    fi
+#    if [ "$feature" = "$master" ] || [ "$feature" = "$slave" ]; then
+#        break
+#    else
+#        echo "Entrada inválida. Digite apenas $master ou $slave"
+#    fi
+#done
+
+#if [ "$feature" = "$master" ]; then
+#    mkdir -p "$HOME/hadoop/hdfs/namenode"
+#    ssh-copy-id "$user"@"$master"
+#elif [ "$feature" = "$slave" ]; then
+#    mkdir -p "$HOME/hadoop/hdfs/datanode"
+#fi
+
+
+#read -p "Quantos slaves terá o cluster? obs: Digite apenas números: " qtd_slave
+
+#while ! [[ "$qtd_slave"  =~ ^[0-9]+$ ]]; do
+#    echo "Entrada inválida. Digite apenas números"
+#    read -p "Quantos slaves terá o cluster? obs: Digite apenas números: " qtd_slave
+#done
+
+config=""
+slaves=""
+memory_ram=""
+
+while [[ "$#" -gt 0 ]]; do
+	case "$1" in
+		--config) config="$2"; shift;;
+		--slaves) slaves="$2"; shift;;
+		--memory-ram) memory_ram="$2"; shift;;
+		*) echo "Opção inválida: $1"; exit 1;;
+	esac
+	shift
 done
 
-if [ "$feature" = "$master" ]; then
+
+
+if [ "$config" = "$master" ]; then
     mkdir -p "$HOME/hadoop/hdfs/namenode"
     ssh-copy-id "$user"@"$master"
-elif [ "$feature" = "$slave" ]; then
+elif [ "$config" = "$slave" ]; then
     mkdir -p "$HOME/hadoop/hdfs/datanode"
 fi
 
-
-read -p "Quantos slaves terá o cluster? obs: Digite apenas números: " qtd_slave
-
-while ! [[ "$qtd_slave"  =~ ^[0-9]+$ ]]; do
-    echo "Entrada inválida. Digite apenas números"
-    read -p "Quantos slaves terá o cluster? obs: Digite apenas números: " qtd_slave
-done
 
 path_files_hadoop="$HOME/hadoop/etc/hadoop"
 
@@ -139,7 +163,7 @@ lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
 
   <property>
         <name>dfs.replication</name>
-        <value>$qtd_slave</value>
+        <value>$slaves</value>
   </property>
 
 
@@ -237,7 +261,7 @@ verification_isnumber() {
     done
 }
 
-tot_memory=$(verification_isnumber "Total de memória disponível para containers em cada NodeManager? Valor em Megabytes: ") 
+#tot_memory=$(verification_isnumber "Total de memória disponível para containers em cada NodeManager? Valor em Megabytes: ") 
 
 # Caminho para o arquivo yarn-site.xml
 path_to_add_in_config_yarn_site_xml="$path_files_hadoop/yarn-site.xml"
@@ -261,7 +285,7 @@ line_to_add_in_config_yarn_site_xml=$(cat <<- EOM
 
     <property>
         <name>yarn.nodemanager.resource.memory-mb</name>
-        <value>$tot_memory</value>
+        <value>$memory_ram</value>
     </property>
 
 
@@ -290,13 +314,13 @@ sed -i '/localhost/d' "$path_file_workers"
 
 #user="hadoop"
 
-while [[ "$qtd_slave" -gt 0 ]]; do
-    line_to_add_workers_file="slave$qtd_slave"
+while [[ "$slaves" -gt 0 ]]; do
+    line_to_add_workers_file="slave$slaves"
     echo "$line_to_add_workers_file" >> "$path_file_workers"
     if [[ "$feature" = "$master" ]]; then
     	ssh-copy-id "$user"@"$line_to_add_workers_file"
     fi	
-    qtd_slave=$((qtd_slave - 1)) 
+    slaves=$((slaves - 1)) 
 done
 
 #ssh-copy-id "$user"@"$master"

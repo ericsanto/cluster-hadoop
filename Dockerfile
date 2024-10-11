@@ -24,10 +24,8 @@ RUN apt-get update && \
     openjdk-11-jdk \
     locales && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-#Cria um usuário hadoop, senha e adiciona ao sudoeres
-RUN echo "root:default" | chpasswd && \
+    rm -rf /var/lib/apt/lists/* && \
+    echo "root:default" | chpasswd && \
     echo 'root ALL=(ALL) NOPASSWD: /usr/bin/mysql, /usr/bin/zcat, /usr/sbin/service' >> /etc/sudoers && \
     useradd -m -d /home/hadoop -s /bin/bash hadoop && \
     echo "hadoop:default" | chpasswd && \
@@ -50,29 +48,24 @@ RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
     ssh-keygen -t rsa -b 4096 -f /home/hadoop/.ssh/id_rsa -N "" && \
     chown -R hadoop:hadoop /home/hadoop/.ssh && \
     chmod +x /home/hadoop/verification-cluster.sh && \
-    chmod +x /home/hadoop/request-script.sh
-    
-#Instala o hadoop, altera as permissões da pasta hadoop e instala o spark
-RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.gz && \
+    chmod +x /home/hadoop/request-script.sh && \
+    wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.gz && \
     tar -xzf hadoop-3.4.0.tar.gz && \
     mv hadoop-3.4.0 hadoop && \
     rm -r hadoop-3.4.0.tar.gz && \
     chown -R hadoop:hadoop /home/hadoop/hadoop && \
     chown -R hadoop:hadoop /home/hadoop/automatization-cluster.sh && \
     chown -R hadoop:hadoop /home/hadoop/script-host.sh && \
-    wget https://dlcdn.apache.org/spark/spark-3.5.2/spark-3.5.2-bin-hadoop3.tgz && \
-    tar -xzvf spark-3.5.2-bin-hadoop3.tgz && \
-    mv spark-3.5.2-bin-hadoop3 spark && \
-    rm -r spark-3.5.2-bin-hadoop3.tgz
-
-#instalando Zabbix
-RUN wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu22.04_all.deb && \
+    wget https://dlcdn.apache.org/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz && \
+    tar -xzvf spark-3.5.3-bin-hadoop3.tgz && \
+    mv spark-3.5.3-bin-hadoop3 spark && \
+    rm -r spark-3.5.3-bin-hadoop3.tgz && \
+    wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     dpkg -i zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     apt update && \
     apt install -y --no-install-recommends zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent2 && \
-    rm -r zabbix-release_7.0-2+ubuntu22.04_all.deb
-    
-RUN apt install -y adduser libfontconfig1 musl && \
+    rm -r zabbix-release_7.0-2+ubuntu22.04_all.deb && \
+    apt install -y adduser libfontconfig1 musl && \
     wget https://dl.grafana.com/enterprise/release/grafana-enterprise_11.2.0_amd64.deb && \
     dpkg -i grafana-enterprise_11.2.0_amd64.deb && \
     rm -r grafana-enterprise_11.2.0_amd64.deb
