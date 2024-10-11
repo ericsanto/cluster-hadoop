@@ -60,10 +60,10 @@ RUN wget http://ftp.unicamp.br/pub/apache/hadoop/common/stable/hadoop-3.4.0.tar.
     chown -R hadoop:hadoop /home/hadoop/hadoop && \
     chown -R hadoop:hadoop /home/hadoop/automatization-cluster.sh && \
     chown -R hadoop:hadoop /home/hadoop/script-host.sh && \
-    wget https://dlcdn.apache.org/spark/spark-3.5.2/spark-3.5.2-bin-hadoop3.tgz && \
-    tar -xzvf spark-3.5.2-bin-hadoop3.tgz && \
-    mv spark-3.5.2-bin-hadoop3 spark && \
-    rm -r spark-3.5.2-bin-hadoop3.tgz
+    wget https://dlcdn.apache.org/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz && \
+    tar -xzvf spark-3.5.3-bin-hadoop3.tgz && \
+    mv spark-3.5.3-bin-hadoop3 spark && \
+    rm -r spark-3.5.3-bin-hadoop3.tgz
 
 #instalando Zabbix
 RUN wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu22.04_all.deb && \
