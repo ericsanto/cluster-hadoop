@@ -21,7 +21,7 @@ RUN apt-get update && \
     mysql-server \
     software-properties-common \
     wget \
-    openjdk-11-jdk \
+    sudo apt install openjdk-8-jdk \
     locales && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
