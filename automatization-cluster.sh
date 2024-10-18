@@ -80,7 +80,7 @@ bash_rc_path="$HOME/.bashrc"
 # Linhas a serem adicionadas ao .bashrc
 lines_to_add=$(cat <<- EOM
 # Configuração de variáveis de ambiente para o Hadoop
-export JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
 export PATH=\$PATH:\$JAVA_HOME/bin
 export HADOOP_HOME="/home/hadoop/hadoop"
 export PATH="\$PATH:\${HADOOP_HOME}/bin"
@@ -100,7 +100,7 @@ hadoop_env_path="$path_files_hadoop/hadoop-env.sh"
 
 # Linhas a serem adicionadas ao hadoop-env.sh
 lines_to_add_in_hadoop_env_sh=$(cat <<- EOM
-export JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
 export HADOOP_HOME=/home/hadoop/hadoop
 export HADOOP_CONF_DIR="\$HADOOP_HOME/etc/hadoop"
 export PATH="\${PATH}:\${HADOOP_HOME}/bin"
