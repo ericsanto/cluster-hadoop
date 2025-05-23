@@ -87,7 +87,7 @@ export PATH="\$PATH:\${HADOOP_HOME}/bin"
 export SPARK_HOME=/home/hadoop/spark
 export PATH=\$PATH:\$SPARK_HOME/bin
 export YARN_CONF_DIR=\$HADOOP_HOME/etc/hadoop
-export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop
+#export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop
 EOM
 )
 
@@ -102,10 +102,9 @@ hadoop_env_path="$path_files_hadoop/hadoop-env.sh"
 lines_to_add_in_hadoop_env_sh=$(cat <<- EOM
 export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
 export HADOOP_HOME=/home/hadoop/hadoop
-export HADOOP_CONF_DIR="\$HADOOP_HOME/etc/hadoop"
+export YARN_CONF_DIR="\$HADOOP_HOME/etc/hadoop"
 export PATH="\${PATH}:\${HADOOP_HOME}/bin"
 export HADOOP_SSH_OPTS="-i ~/.ssh/id_rsa"
-export HADOOP_OPTS="\$HADOOP_OPTS --add-opens=java.base/java.lang=ALL-UNNAMED"
 EOM
 )
 
@@ -312,7 +311,7 @@ send_content_to_file "$line_to_add_in_config_yarn_site_xml" "$path_to_add_in_con
 path_file_workers="/home/hadoop/hadoop/etc/hadoop/workers"
 sed -i '/localhost/d' "$path_file_workers"
 
-#user="hadoop"
+user="hadoop"
 
 while [[ "$slaves" -gt 0 ]]; do
     line_to_add_workers_file="slave$slaves"
