@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  zerotier:
+    image: zerotier/zerotier
+    container_name: zerotier
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    devices:
+      - /dev/net/tun
+    restart: unless-stopped
+
+  hadoop:
+    build: .
+    container_name: app
+    network_mode: "container:zerotier"
+    restart: unless-stopped
+    volumes:
+      - cluster_data:/home/hadoop
+      - etc_data:/etc/hadoop
+      - var_data:/var/hadoop
+
+volumes:
+  cluster_data:
+  etc_data:
+  var_data:
