@@ -56,10 +56,10 @@ RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
     chown -R hadoop:hadoop /home/hadoop/hadoop && \
     chown -R hadoop:hadoop /home/hadoop/automatization-cluster.sh && \
     chown -R hadoop:hadoop /home/hadoop/script-host.sh && \
-    wget https://dlcdn.apache.org/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz && \
-    tar -xzvf spark-3.5.3-bin-hadoop3.tgz && \
-    mv spark-3.5.3-bin-hadoop3 spark && \
-    rm -r spark-3.5.3-bin-hadoop3.tgz && \
+    #wget https://dlcdn.apache.org/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz && \
+    #tar -xzvf spark-3.5.3-bin-hadoop3.tgz && \
+    #mv spark-3.5.3-bin-hadoop3 spark && \
+    #rm -r spark-3.5.3-bin-hadoop3.tgz && \
     wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     dpkg -i zabbix-release_7.0-2+ubuntu22.04_all.deb && \
     apt update && \
