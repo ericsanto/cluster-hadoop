@@ -49,7 +49,7 @@ RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
     chown -R hadoop:hadoop /home/hadoop/.ssh && \
     chmod +x /home/hadoop/verification-cluster.sh && \
     chmod +x /home/hadoop/request-script.sh && \
-    wget http://ftp.unicamp.br/pub/apache/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz && \
+    wget https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz && \
     tar -xzf hadoop-3.4.0.tar.gz && \
     mv hadoop-3.4.0 hadoop && \
     rm -r hadoop-3.4.0.tar.gz && \
