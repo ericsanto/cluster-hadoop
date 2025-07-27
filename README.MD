@@ -1,189 +1,213 @@
+Claro, aqui está uma sugestão de `readme.md` aprimorado, baseado no conteúdo que você forneceu.
 
-```markdown
+-----
+
 # 🚀 Cluster Hadoop com Monitoramento via Docker
 
-Projeto para configuração de um ambiente **Hadoop distribuído**, com suporte a **Docker**, **Zabbix**, **Grafana**, **Portainer** e **ZeroTier** para simular clusters locais e remotos.
+Este projeto oferece uma solução completa para a criação de um ambiente **Hadoop distribuído**, totalmente containerizado com **Docker**. Inclui ferramentas de monitoramento como **Zabbix** e **Grafana**, gerenciamento de containers com **Portainer** e conectividade de rede virtual via **ZeroTier**, permitindo a simulação de clusters tanto locais quanto remotos.
 
----
+-----
 
 ## 📦 Requisitos
 
-- Linux (Ubuntu/Debian)
-- Docker e Docker Compose
-- ZeroTier (opcional, para conectar máquinas remotas)
+Antes de começar, garanta que seu ambiente atenda aos seguintes pré-requisitos:
 
----
+  - **Sistema Operacional:** Linux (testado em Ubuntu/Debian)
+  - **Containerização:** Docker e Docker Compose
+  - **Rede Virtual (Opcional):** [ZeroTier](https://www.zerotier.com/) para conectar máquinas em redes distintas.
 
-## 🧩 Etapa 1 — Instalar e configurar ZeroTier (opcional)
+-----
 
-Usado para simular uma rede virtual entre máquinas remotas.
+## 🛠️ Etapas de Configuração
 
-### Instalar
+Siga os passos abaixo para preparar seu ambiente e configurar o cluster.
 
-```bash
-curl -s https://install.zerotier.com | sudo bash
-```
+### 🧭 Etapa 1 — Instalar e Configurar ZeroTier (Opcional)
 
-### Criar rede
+Utilize o ZeroTier para criar uma rede virtual privada e segura, conectando máquinas como se estivessem na mesma rede local.
 
-1. Acesse [https://my.zerotier.com](https://my.zerotier.com)
-2. Crie uma rede e copie o **Network ID**
-3. Em cada máquina:
-   ```bash
-   sudo zerotier-cli join <ID_DA_REDE>
-   ```
-4. Autorize os dispositivos via painel web
+1.  **Instale o ZeroTier em cada máquina:**
 
----
+    ```bash
+    curl -s https://install.zerotier.com | sudo bash
+    ```
 
-## 🧭 Etapa 2 — Editar arquivo /etc/hosts
+2.  **Crie uma Rede Virtual:**
 
-Em todas as máquinas que fazem parte do cluster, adicione os IPs da rede:
+      - Acesse o painel [my.zerotier.com](https://my.zerotier.com).
+      - Crie uma nova rede e anote o **Network ID**.
 
-```bash
-sudo nano /etc/hosts
-```
+3.  **Conecte cada máquina à rede:**
 
-Exemplo:
-```
-10.147.17.1    master
-10.147.17.2    slave1
-```
+    ```bash
+    sudo zerotier-cli join <SEU_NETWORK_ID>
+    ```
 
----
+4.  **Autorize os Dispositivos:**
 
-## 🧰 Etapa 3 — Clonar o projeto e construir imagem
+      - Volte ao painel do ZeroTier.
+      - Na seção "Members", autorize cada máquina que se conectou à sua rede. Anote os IPs atribuídos a elas.
 
-```bash
-git clone https://github.com/ericsanto/cluster-hadoop.git
-cd cluster-hadoop
-sudo docker build -t hadoop .
-```
+### ✍️ Etapa 2 — Editar o Arquivo `/etc/hosts`
 
----
+Em **todas as máquinas** que farão parte do cluster (master e slaves), adicione os IPs (da sua rede local ou da rede ZeroTier) e os respectivos hostnames.
 
-## 🐳 Etapa 4 — Executar container
+1.  Abra o arquivo `hosts` para edição:
 
-Em cada máquina (master e slaves):
+    ```bash
+    sudo nano /etc/hosts
+    ```
+
+2.  Adicione as entradas, mapeando o IP de cada nó ao seu nome.
+
+    ```properties
+    # Exemplo
+    10.147.17.1    master
+    10.147.17.2    slave1
+    10.147.17.3    slave2
+    ```
+
+### 🧰 Etapa 3 — Clonar o Projeto e Construir a Imagem Docker
+
+1.  Clone o repositório do projeto:
+
+    ```bash
+    git clone https://github.com/ericsanto/cluster-hadoop.git
+    ```
+
+2.  Navegue até o diretório do projeto:
+
+    ```bash
+    cd cluster-hadoop
+    ```
+
+3.  Construa a imagem Docker personalizada para o Hadoop:
+
+    ```bash
+    sudo docker build -t hadoop .
+    ```
+
+-----
+
+## ▶️ Execução e Operação do Cluster
+
+Com o ambiente configurado, siga estes passos para iniciar e gerenciar o cluster.
+
+### 🐳 Etapa 4 — Executar o Container Hadoop
+
+Execute este comando em **todas as máquinas** (master e slaves) para iniciar o container em modo de rede host.
 
 ```bash
 sudo docker run -it --network host hadoop
 ```
 
----
+### 🔄 Etapa 5 — Alternar para o Usuário `hadoop`
 
-## 🔄 Etapa 5 — Alternar para o usuário Hadoop
+Dentro do container, todos os comandos específicos do Hadoop devem ser executados pelo usuário `hadoop`.
 
 ```bash
 su hadoop
 ```
 
----
+### ⚙️ Etapa 6 — Automatizar a Configuração dos Nós
 
-## ⚙️ Etapa 6 — Automatizar configuração do nó
+Utilize o script de automação para configurar cada nó de acordo com sua função (master ou slave).
 
-### No nó master:
+1.  **No nó Master:**
 
-```bash
-./automatization-cluster.sh --config master --slaves 1 --memory-ram 5000
-```
+    ```bash
+    # Exemplo: 1 slave no cluster e 5000 MB de RAM para o Hadoop
+    ./automatization-cluster.sh --config master --slaves 1 --memory-ram 5000
+    ```
 
-### No nó slave:
+2.  **Em cada nó Slave:**
 
-```bash
-./automatization-cluster.sh --config slave --slaves 1 --memory-ram 5000
-```
+    ```bash
+    # A configuração de memória deve ser a mesma em todos os nós
+    ./automatization-cluster.sh --config slave --slaves 1 --memory-ram 5000
+    ```
 
----
+### 🧱 Etapa 7 — Formatar o NameNode (Apenas no Master)
 
-## 🧱 Etapa 7 — Formatar o NameNode (somente na master)
-
-Antes de iniciar os serviços:
+**Atenção:** Este comando deve ser executado **uma única vez** e **somente no nó master**. Ele inicializa o sistema de arquivos do HDFS.
 
 ```bash
 hdfs namenode -format
 ```
 
----
+### ▶️ Etapa 8 — Iniciar os Serviços do Hadoop (Apenas no Master)
 
-## ▶️ Etapa 8 — Iniciar serviços Hadoop (somente na master)
+Use o script `start-all.sh` no nó master para iniciar todos os daemons do Hadoop (NameNode, DataNodes, ResourceManager, etc.).
 
 ```bash
 $HADOOP_HOME/sbin/start-all.sh
 ```
 
-Evite rodar este comando nos slaves!
+**Importante:** Não execute este comando nos nós slaves\!
 
----
+-----
 
-## 📊 Etapa 9 — Monitoramento e interfaces web
+## 📊 Monitoramento e Interfaces Web
 
-| Serviço         | Porta | URL                   |
-|----------------|-------|------------------------|
-| NameNode        | 9870  | http://master:9870     |
-| DataNode        | 9864  | http://slave1:9864     |
-| ResourceManager | 8088  | http://master:8088     |
-| Zabbix          | 80    | http://localhost/zabbix|
-| Grafana         | 3000  | http://localhost:3000  |
-| Portainer       | 9000  | http://localhost:9000  |
+Acesse as seguintes interfaces web para gerenciar e monitorar seu cluster.
 
----
+| Serviço | Porta | URL |
+| :--- | :---: | :--- |
+| **HDFS NameNode** | `9870` | `http://master:9870` |
+| **HDFS DataNode** | `9864` | `http://slave1:9864` |
+| **YARN ResourceManager** | `8088` | `http://master:8088` |
+| **Zabbix** | `80` | `http://localhost/zabbix` |
+| **Grafana** | `3000` | `http://localhost:3000` |
+| **Portainer** | `9000` | `http://localhost:9000` |
 
-## 🧪 Etapa 10 — Gerar dados de teste com Teragen
+-----
 
-```bash
-cd hadoop/share/hadoop/mapreduce/
-hadoop jar hadoop-mapreduce-examples-3.4.0.jar teragen 508080808 /hadoop/teragen
-```
+## 🧪 Verificação e Testes
 
-Acompanhe o progresso pelo ResourceManager:  
-🔗 `http://master:8088`
+### ✅ Etapa 9 — Verificar Processos em Execução
 
----
+Use o comando `jps` para verificar se os serviços do Hadoop estão rodando corretamente.
 
-## 🧼 Etapa 11 — Verificação com jps
+  - **No Master, a saída esperada é:**
 
-### Na master:
+    ```
+    NameNode
+    ResourceManager
+    SecondaryNameNode
+    ```
 
-```bash
-jps
-```
+  - **Em cada Slave, a saída esperada é:**
 
-Saída esperada:
-```
-NameNode
-ResourceManager
-SecondaryNameNode
-```
+    ```
+    DataNode
+    NodeManager
+    ```
 
-### No slave:
+### ⚡ Etapa 10 — Gerar Dados de Teste com TeraGen
 
-```bash
-jps
-```
+Use o `TeraGen`, uma ferramenta do Hadoop, para gerar uma grande quantidade de dados e testar a capacidade de processamento do cluster.
 
-Saída esperada:
-```
-DataNode
-NodeManager
-```
+1.  Navegue até o diretório de exemplos MapReduce:
 
----
+    ```bash
+    cd $HADOOP_HOME/share/hadoop/mapreduce/
+    ```
+
+2.  Execute o `TeraGen` para gerar dados. O exemplo abaixo cria dados no diretório `/hadoop/teragen` dentro do HDFS.
+
+    ```bash
+    hadoop jar hadoop-mapreduce-examples-3.4.0.jar teragen 508080808 /hadoop/teragen
+    ```
+
+3.  Você pode acompanhar o progresso do job MapReduce através da interface web do **ResourceManager**:
+    🔗 `http://master:8088`
+
+-----
 
 ## 🤝 Contribuições
 
-Sugestões e melhorias são bem-vindas!  
-Abra uma issue ou envie um pull request.
-
----
+Sugestões e melhorias são sempre bem-vindas\! Sinta-se à vontade para abrir uma **issue** para relatar problemas ou enviar um **pull request** com novas funcionalidades.
 
 ## 📄 Licença
 
-Distribuído sob a licença [MIT](LICENSE).
-
----
-
-Feito com 💻 e ☕ por [**Éric Santos**](https://github.com/ericsanto)
-```
-
-Se quiser, posso exportar esse passo a passo como infográfico, transformar num artigo técnico, ou te ajudar a publicar no DockerHub. O que acha de dar uma cara de curso gratuito pro projeto? 😎📚
+Este projeto é distribuído sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
