@@ -38,11 +38,9 @@ WORKDIR /home/hadoop
 
 # Copia o script bash para o container
 COPY ./automatization-cluster.sh /home/hadoop/
-COPY ./script-database-zabbix.sh /usr/local/bin
-COPY ./script-host.sh /home/hadoop/
+COPY ./script-zabbix.sh /usr/local/bin
 COPY ./verification-cluster.sh /home/hadoop/
 COPY ./request-script.sh /home/hadoop
-COPY ./script-zabbix-arm.sh /home/hadoop
 COPY ./script-host-arm.sh /home/hadoop
 
 # Gera uma chave SSH, configura o arquivo authorized_keys e configura o arquivo /etc/ssh/sshd_config
@@ -52,13 +50,14 @@ RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
     chown -R hadoop:hadoop /home/hadoop/.ssh && \
     chmod +x /home/hadoop/verification-cluster.sh && \
     chmod +x /home/hadoop/request-script.sh && \
+    chmod +x /home/hadoop/script-host-arm.sh && \
     wget https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz && \
     tar -xzf hadoop-3.4.0.tar.gz && \
     mv hadoop-3.4.0 hadoop && \
     rm -r hadoop-3.4.0.tar.gz && \
     chown -R hadoop:hadoop /home/hadoop/hadoop && \
     chown -R hadoop:hadoop /home/hadoop/automatization-cluster.sh && \
-    chown -R hadoop:hadoop /home/hadoop/script-host.sh && \
+    chown -R hadoop:hadoop /home/hadoop/script-host-arm.sh && \
    # wget https://dlcdn.apache.org/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz && \
     #tar -xzvf spark-3.5.3-bin-hadoop3.tgz && \
     #mv spark-3.5.3-bin-hadoop3 spark && \
