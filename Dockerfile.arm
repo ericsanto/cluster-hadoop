@@ -43,6 +43,7 @@ COPY ./script-host.sh /home/hadoop/
 COPY ./verification-cluster.sh /home/hadoop/
 COPY ./request-script.sh /home/hadoop
 COPY ./script-zabbix-arm.sh /home/hadoop
+COPY ./script-host-arm.sh /home/hadoop
 
 # Gera uma chave SSH, configura o arquivo authorized_keys e configura o arquivo /etc/ssh/sshd_config
 RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
