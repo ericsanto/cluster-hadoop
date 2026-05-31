@@ -76,4 +76,4 @@ RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
 # rm -r grafana-enterprise_11.2.0_amd64.deb
 
 # Comando padrão para executar quando o container for iniciado
-ENTRYPOINT [ "./script-host.sh" ]
+ENTRYPOINT [ "./script-host-arm.sh" ]
