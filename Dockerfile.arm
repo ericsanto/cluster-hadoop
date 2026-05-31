@@ -51,6 +51,7 @@ RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config && \
     chmod +x /home/hadoop/verification-cluster.sh && \
     chmod +x /home/hadoop/request-script.sh && \
     chmod +x /home/hadoop/script-host-arm.sh && \
+    chmod +x /usr/local/bin/script-zabbix-arm.sh && \
     wget https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz && \
     tar -xzf hadoop-3.4.0.tar.gz && \
     mv hadoop-3.4.0 hadoop && \
