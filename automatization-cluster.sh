@@ -51,15 +51,17 @@ send_content_to_file() {
 config=""
 slaves=""
 memory_ram=""
+architecture=""
 
 while [[ "$#" -gt 0 ]]; do
-	case "$1" in
-		--config) config="$2"; shift;;
-		--slaves) slaves="$2"; shift;;
-		--memory-ram) memory_ram="$2"; shift;;
-		*) echo "Opção inválida: $1"; exit 1;;
-	esac
-	shift
+        case "$1" in
+                --config) config="$2"; shift;;
+                --slaves) slaves="$2"; shift;;
+                --memory-ram) memory_ram="$2"; shift;;
+    --architecture) architecture="$2"; shift;; 
+                *) echo "Opção inválida: $1"; exit 1;;
+        esac
+        shift
 done
 
 
@@ -91,8 +93,36 @@ export YARN_CONF_DIR=\$HADOOP_HOME/etc/hadoop
 EOM
 )
 
-# Adicionar linhas ao .bashrc
-send_content_to_file "$lines_to_add" "$bash_rc_path"
+
+
+lines_to_add_arm_architecture=$(cat <<- EOM
+# Configuração de variáveis de ambiente para o Hadoop
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+export PATH=\$PATH:\$JAVA_HOME/bin
+export HADOOP_HOME="/home/hadoop/hadoop"
+export PATH="\$PATH:\${HADOOP_HOME}/bin"
+export SPARK_HOME=/home/hadoop/spark
+export PATH=\$PATH:\$SPARK_HOME/bin
+export YARN_CONF_DIR=\$HADOOP_HOME/etc/hadoop
+#export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop
+EOM
+)
+
+
+if [ "$architecture" = "amd" ]; then 
+
+  echo "Arquitetura amd"
+  # Adicionar linhas ao .bashrc
+  send_content_to_file "$lines_to_add" "$bash_rc_path"
+
+elif ["$architecture" = "arm"]; then
+
+  echo "Arquitetura arm"
+
+   send_content_to_file "$lines_to_add_arm_architecture" "$bash_rc_path"
+fi
+
+
 
 
 # Caminho para o arquivo hadoop-env.sh
