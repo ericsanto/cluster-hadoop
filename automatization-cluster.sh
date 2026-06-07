@@ -1,5 +1,14 @@
 #!/bin/bash
 
+
+
+  ____ _           _              _   _           _                   
+ / ___| |_   _ ___| |_ ___ _ __  | | | | __ _  __| | ___   ___  _ __  
+| |   | | | | / __| __/ _ \ '__| | |_| |/ _` |/ _` |/ _ \ / _ \| '_ \ 
+| |___| | |_| \__ \ ||  __/ |    |  _  | (_| | (_| | (_) | (_) | |_) |
+ \____|_|\__,_|___/\__\___|_|    |_| |_|\__,_|\__,_|\___/ \___/| .__/ 
+                                                               |_|    
+
 master="master"
 slave="slave"
 user="hadoop"
@@ -76,72 +85,76 @@ fi
 
 path_files_hadoop="$HOME/hadoop/etc/hadoop"
 
-# Caminho para o arquivo .bashrc
+
+# ==========================================
+# DETECÇÃO DA ARQUITETURA E JAVA_HOME
+# ==========================================
+
+case "$architecture" in
+    amd)
+        JAVA_HOME_PATH="/usr/lib/jvm/java-1.8.0-openjdk-amd64"
+        ;;
+    arm)
+        JAVA_HOME_PATH="/usr/lib/jvm/java-8-openjdk-arm64/jre"
+        ;;
+    *)
+        echo "Arquitetura inválida: $architecture"
+        echo "Use apenas: amd ou arm"
+        exit 1
+        ;;
+esac
+
+# ==========================================
+# CONFIGURAÇÃO DO .bashrc
+# ==========================================
+
 bash_rc_path="$HOME/.bashrc"
 
-# Linhas a serem adicionadas ao .bashrc
-lines_to_add=$(cat <<- EOM
-# Configuração de variáveis de ambiente para o Hadoop
-export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+bashrc_content=$(cat <<EOM
+
+# Configuração de variáveis de ambiente para Hadoop e Spark
+export JAVA_HOME=$JAVA_HOME_PATH
 export PATH=\$PATH:\$JAVA_HOME/bin
-export HADOOP_HOME="/home/hadoop/hadoop"
-export PATH="\$PATH:\${HADOOP_HOME}/bin"
+
+export HADOOP_HOME=/home/hadoop/hadoop
+export PATH=\$PATH:\$HADOOP_HOME/bin
+
 export SPARK_HOME=/home/hadoop/spark
 export PATH=\$PATH:\$SPARK_HOME/bin
-export YARN_CONF_DIR=\$HADOOP_HOME/etc/hadoop
-#export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop
+
+export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop
+
 EOM
 )
 
+send_content_to_file "$bashrc_content" "$bash_rc_path"
 
+# ==========================================
+# CONFIGURAÇÃO DO hadoop-env.sh
+# ==========================================
 
-lines_to_add_arm_architecture=$(cat <<- EOM
-# Configuração de variáveis de ambiente para o Hadoop
-export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
-export PATH=\$PATH:\$JAVA_HOME/bin
-export HADOOP_HOME="/home/hadoop/hadoop"
-export PATH="\$PATH:\${HADOOP_HOME}/bin"
-export SPARK_HOME=/home/hadoop/spark
-export PATH=\$PATH:\$SPARK_HOME/bin
-export YARN_CONF_DIR=\$HADOOP_HOME/etc/hadoop
-#export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop
-EOM
-)
-
-
-if [ "$architecture" = "amd" ]; then 
-
-  echo "Arquitetura amd"
-  # Adicionar linhas ao .bashrc
-  send_content_to_file "$lines_to_add" "$bash_rc_path"
-
-elif [ "$architecture" = "arm" ]; then
-
-  echo "Arquitetura arm"
-
-   send_content_to_file "$lines_to_add_arm_architecture" "$bash_rc_path"
-fi
-
-
-
-
-# Caminho para o arquivo hadoop-env.sh
 hadoop_env_path="$path_files_hadoop/hadoop-env.sh"
 
-# Linhas a serem adicionadas ao hadoop-env.sh
-lines_to_add_in_hadoop_env_sh=$(cat <<- EOM
-export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+hadoop_env_content=$(cat <<EOM
+
+export JAVA_HOME=$JAVA_HOME_PATH
+
 export HADOOP_HOME=/home/hadoop/hadoop
-export YARN_CONF_DIR="\$HADOOP_HOME/etc/hadoop"
-export PATH="\${PATH}:\${HADOOP_HOME}/bin"
+
+export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop
+
+export PATH=\${PATH}:\${HADOOP_HOME}/bin
+
 export HADOOP_SSH_OPTS="-i ~/.ssh/id_rsa"
+
 EOM
 )
 
-# Adicionar linhas ao hadoop-env.sh
-send_content_to_file "$lines_to_add_in_hadoop_env_sh" "$hadoop_env_path"
+send_content_to_file "$hadoop_env_content" "$hadoop_env_path"
+
 
 # Caminho para o arquivo core-site.xml
+
 path_to_add_config_core_site_xml="$path_files_hadoop/core-site.xml"
 lines_to_add_in_hadoop_core_site_xml=$(cat <<- EOM
 <configuration>
