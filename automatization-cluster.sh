@@ -115,7 +115,7 @@ if [ "$architecture" = "amd" ]; then
   # Adicionar linhas ao .bashrc
   send_content_to_file "$lines_to_add" "$bash_rc_path"
 
-elif ["$architecture" = "arm"]; then
+elif [ "$architecture" = "arm" ]; then
 
   echo "Arquitetura arm"
 
