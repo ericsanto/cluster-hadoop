@@ -98,7 +98,7 @@ case "$architecture" in
         JAVA_HOME_PATH="/usr/lib/jvm/java-1.8.0-openjdk-amd64"
         ;;
     arm)
-        JAVA_HOME_PATH="/usr/lib/jvm/java-8-openjdk-arm64/jre"
+        JAVA_HOME_PATH="/usr/lib/jvm/java-8-openjdk-arm64"
         ;;
     *)
         echo "Arquitetura inválida: $architecture"
