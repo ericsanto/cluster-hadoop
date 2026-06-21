@@ -11,7 +11,7 @@ cat << "EOF"
 
 EOF
 
-
+echo "teste"
 master="master"
 slave="slave"
 user="hadoop"
@@ -98,7 +98,7 @@ case "$architecture" in
         JAVA_HOME_PATH="/usr/lib/jvm/java-1.8.0-openjdk-amd64"
         ;;
     arm)
-        JAVA_HOME_PATH="/usr/lib/jvm/java-8-openjdk-arm64"
+        JAVA_HOME_PATH="/usr/lib/jvm/java-8-openjdk-arm64/jre"
         ;;
     *)
         echo "Arquitetura inválida: $architecture"
