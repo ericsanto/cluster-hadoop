@@ -201,6 +201,7 @@ else
     dfs_replication=1
 fi
 
+
 # Caminho para o arquivo hdfs-site.xml
 path_to_add_config_hdfs_site_xml="$path_files_hadoop/hdfs-site.xml"
 lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
@@ -218,13 +219,15 @@ lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
 
   <property>
         <name>dfs.replication</name>
-        <value>$dfs_replication</value>
+        <value>3</value>
   </property>
 
 
 </configuration>
 EOM
 )
+
+echo $lines_to_add_in_config_hdfs_site_xml
 
 # Faz o backup do arquivo hdfs-site.xml
 create_backup_file "$path_to_add_config_hdfs_site_xml"
