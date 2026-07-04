@@ -1,0 +1,9 @@
+FROM hadoop-base
+
+COPY  /scripts/*.sh .
+
+USER root
+
+RUN chmod +x ./master-entrypoint.sh
+
+ENTRYPOINT ["./master-entrypoint.sh"]

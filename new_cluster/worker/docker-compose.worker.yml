@@ -1,0 +1,41 @@
+services:
+
+  worker1:
+
+    build: 
+      context: ..
+      build: master/Dockerfile.worker
+    hostname: worker1
+
+    container_name: worker1
+
+    
+    network_mode: "host"
+
+
+  prometheus:
+
+    image: prom/prometheus
+
+    container_name: prometheus
+
+    volumes:
+
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+    ports:
+
+      - "9090:9090"
+
+    network_mode: "host
+
+    
+  node-exporter-worker1:
+
+    image: prom/node-exporter
+
+    network_mode: service:worker1
+
+
+
+
