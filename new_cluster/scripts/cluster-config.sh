@@ -35,7 +35,7 @@ hdfs=$(cat <<EOF
 
         <name>dfs.namenode.name.dir</name>
 
-        <value>/home/hadoop/hdfs/namenode</value>
+        <value>$HOME/hdfs/namenode</value>
 
     </property>
 
@@ -43,7 +43,7 @@ hdfs=$(cat <<EOF
 
         <name>dfs.datanode.data.dir</name>
 
-        <value>/home/hadoop/hdfs/datanode</value>
+        <value>$HOME/hdfs/datanode</value>
 
     </property>
 
@@ -90,3 +90,6 @@ EOF
 write_xml \
 "$HADOOP_HOME/etc/hadoop/yarn-site.xml" \
 "$yarn"
+
+cat workers.txt >> "$HADOOP_HOME/etc/hadoop/workers"
+

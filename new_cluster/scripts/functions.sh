@@ -31,3 +31,17 @@ detect_java_home() {
     dirname "$(dirname "$(readlink -f "$(which java)")")"
 
 }
+
+generate_ssh_key() {
+
+    if [ ! -f "$HOME/.ssh/id_rsa" ]; then
+
+        echo "Gerando chave SSH..."
+
+        mkdir -p "$HOME/.ssh"
+
+        ssh-keygen -t rsa -b 4096 -N "" -f "$HOME/.ssh/id_rsa"
+
+    fi
+
+}

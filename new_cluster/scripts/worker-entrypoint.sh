@@ -1,15 +1,11 @@
 #!/bin/bash
 
-source /scripts/functions.sh
+source functions.sh
 
-source /scripts/hadoop-env.sh
+source hadoop-env.sh
 
-source /scripts/cluster-config.sh
+source cluster-config.sh
 
-mkdir -p ~/hdfs/datanode
-
-hdfs --daemon start datanode
-
-yarn --daemon start nodemanager
+mkdir -p $HADOOP_HOME/hdfs/datanode
 
 tail -f /dev/null

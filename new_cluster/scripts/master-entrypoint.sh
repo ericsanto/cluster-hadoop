@@ -1,20 +1,24 @@
 #!/bin/bash
 
-source /scripts/functions.sh
+source functions.sh
 
-source /scripts/hadoop-env.sh
+source hadoop-env.sh
 
-source /scripts/cluster-config.sh
+source cluster-config.sh
 
-mkdir -p ~/hdfs/namenode
+source config-ssh.sh
 
-if [ ! -d ~/hdfs/namenode/current ]; then
+mkdir -p $HOME/hdfs/namenode
+
+if [ ! -d $HOME/hdfs/namenode/current ]; then
 
     hdfs namenode -format
-
 fi
 
-start-dfs.sh
+
+# service ssh start
+
+# start-dfs.sh
 
 start-yarn.sh
 
