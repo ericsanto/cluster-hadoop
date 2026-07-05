@@ -16,6 +16,10 @@ services:
       - "8088:8088"
 
     network_mode: "host"
+    volumes:
+     - ../ssh:/home/hadoop/.ssh
+    #  - namenode_data:/home/hadoop/hadoop/hdfs/namenode
+    #  - datanode_data:/home/hadoop/hadoop/hdfs/datanode
 
   prometheus:
 
@@ -72,3 +76,5 @@ services:
 volumes:
 
   grafana:
+  # namenode_data:
+  # datanode_data:
