@@ -1,9 +1,12 @@
 FROM hadoop-base
 
-COPY entrypoint.sh /entrypoint.sh
+COPY /scripts /usr/local/bin
+COPY workers.txt .
 
 USER root
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /usr/local/bin/worker-entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+USER hadoop
+
+ENTRYPOINT ["/usr/local/bin/worker-entrypoint.sh"]
