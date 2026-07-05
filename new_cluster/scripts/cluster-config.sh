@@ -93,3 +93,34 @@ write_xml \
 
 cat workers.txt >> "$HADOOP_HOME/etc/hadoop/workers"
 
+mapred=$(cat <<- EOM
+<configuration>
+
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+
+    <property>
+        <name>yarn.app.mapreduce.am.env</name>
+        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
+    </property>
+
+    <property>
+        <name>mapreduce.map.env</name>
+        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
+    </property>
+
+    <property>
+        <name>mapreduce.reduce.env</name>
+        <value>HADOOP_MAPRED_HOME=/home/hadoop/hadoop</value>
+    </property>
+
+</configuration>
+EOM
+)
+
+
+write_xml \
+"$HADOOP_HOME/etc/hadoop/mapred-site.xml" \
+"$mapred"
