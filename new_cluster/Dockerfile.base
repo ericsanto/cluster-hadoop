@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 LABEL maintainer="Eric Jesus"
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV HADOOP_HOME=/opt/hadoop
+ENV HADOOP_HOME=/home/hadoop/hadoop
 ENV PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
 
 RUN apt update && \
@@ -26,14 +26,11 @@ RUN useradd -m -s /bin/bash hadoop && \
 
 RUN mkdir /var/run/sshd
 
-WORKDIR /opt
+USER hadoop
+WORKDIR /home/hadoop
 
 RUN wget https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz && \
     tar -xzf hadoop-3.4.0.tar.gz && \
     mv hadoop-3.4.0 hadoop && \
-    rm hadoop-3.4.0.tar.gz
+    rm -r  hadoop-3.4.0.tar.gz
 
-RUN chown -R hadoop:hadoop /opt/hadoop
-
-USER hadoop
-WORKDIR /home/hadoop
