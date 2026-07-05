@@ -4,38 +4,36 @@ services:
 
     build: 
       context: ..
-      build: master/Dockerfile.worker
+      dockerfile: worker/Dockerfile.worker
     hostname: worker1
 
     container_name: worker1
 
     
     network_mode: "host"
-
-
-  prometheus:
-
-    image: prom/prometheus
-
-    container_name: prometheus
-
     volumes:
+     - ./ssh:/home/hadoop/.ssh
 
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
-    ports:
+  # prometheus:
 
-      - "9090:9090"
+  #   image: prom/prometheus
 
-    network_mode: "host
+  #   container_name: prometheus
+
+  #   volumes:
+
+  #     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  #   ports:
+
+  #     - "9090:9090"
+
+  #   network_mode: "host
 
     
-  node-exporter-worker1:
+  # node-exporter-worker1:
 
-    image: prom/node-exporter
+  #   image: prom/node-exporter
 
-    network_mode: service:worker1
-
-
-
-
+  #   network_mode: service:worker1
