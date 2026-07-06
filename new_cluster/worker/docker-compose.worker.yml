@@ -1,18 +1,18 @@
 services:
 
-  worker1:
+  worker:
 
     build: 
       context: ..
       dockerfile: worker/Dockerfile.worker
-    hostname: worker1
 
-    container_name: worker1
+    container_name: worker
 
     
     network_mode: "host"
     volumes:
-     - ./ssh:/home/hadoop/.ssh
+     - ../ssh:/home/hadoop/.ssh
+     - ../workers.txt:/home/hadoop/hadoop/etc/hadoop/workers
 
 
   # prometheus:
