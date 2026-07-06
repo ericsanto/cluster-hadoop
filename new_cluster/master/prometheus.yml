@@ -1,9 +1,33 @@
 scrape_configs:
 
-- job_name: cluster
+- job_name: namenode
+  static_configs:
+    - targets:
+      - 10.144.17.173:9404
 
-  file_sd_configs:
+- job_name: resourcemanager
+  static_configs:
+    - targets:
+      - 10.144.17.173:9405
+      
 
-  - files:
+- job_name: datanodes
+  static_configs:
+    - targets:
+      - 10.144.17.173:9406
+      - 10.144.36.234:9406
+      - 10.144.116.135:9406
 
-      - /etc/prometheus/targets/*.json
+- job_name: nodemanager
+  static_configs:
+    - targets:
+      - 10.144.17.173:9407
+      - 10.144.36.234:9407
+      - 10.144.116.135:9407
+
+- job_name: node_exporter
+  static_configs:
+    - targets:
+      - 10.144.17.173:9100
+      - 10.144.36.234:9100
+      - 10.144.116.135:9100
