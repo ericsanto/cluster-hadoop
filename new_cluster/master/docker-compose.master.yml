@@ -10,16 +10,10 @@ services:
     hostname: master
 
     container_name: hadoop-master
-
-    ports:
-      - "9870:9870"
-      - "8088:8088"
-
     network_mode: "host"
+   
     volumes:
      - ../ssh:/home/hadoop/.ssh
-    #  - namenode_data:/home/hadoop/hadoop/hdfs/namenode
-    #  - datanode_data:/home/hadoop/hadoop/hdfs/datanode
 
   prometheus:
 
@@ -28,12 +22,7 @@ services:
     container_name: prometheus
 
     volumes:
-
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-
-    ports:
-
-      - "9090:9090"
 
     network_mode: "host"
 
@@ -65,16 +54,13 @@ services:
 
     network_mode: service:master
 
-  # node-exporter-worker1:
-
-  #   image: prom/node-exporter
-
-  #   network_mode: cluster
 
 
 
 volumes:
 
   grafana:
-  # namenode_data:
-  # datanode_data:
+
+networks:
+  hadoop-net:
+    driver: bridge
