@@ -75,6 +75,16 @@ yarn=$(cat <<EOF
 
     </property>
 
+      <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+
+    <property>
+        <name>yarn.nodemanager.resource.cpu-vcores</name>
+        <value>2</value>
+    </property>
+
     <property>
 
         <name>yarn.nodemanager.resource.memory-mb</name>
