@@ -1,0 +1,14 @@
+FROM hadoop-base
+
+COPY  /scripts /usr/local/bin
+COPY workers.txt .
+COPY workers.txt .
+COPY jmx /opt/jmx
+
+USER root
+
+RUN chmod +x /usr/local/bin/master-entrypoint.sh
+
+USER hadoop
+
+ENTRYPOINT ["/usr/local/bin/master-entrypoint.sh"]

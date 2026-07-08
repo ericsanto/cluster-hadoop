@@ -11,7 +11,7 @@ cat << "EOF"
 
 EOF
 
-
+echo "teste"
 master="master"
 slave="slave"
 user="hadoop"
@@ -98,7 +98,7 @@ case "$architecture" in
         JAVA_HOME_PATH="/usr/lib/jvm/java-1.8.0-openjdk-amd64"
         ;;
     arm)
-        JAVA_HOME_PATH="/usr/lib/jvm/java-8-openjdk-arm64"
+        JAVA_HOME_PATH="/usr/lib/jvm/java-8-openjdk-arm64/jre"
         ;;
     *)
         echo "Arquitetura inválida: $architecture"
@@ -189,7 +189,18 @@ mkdir -p "$HOME/hadoop/dfs/namespace_logs"
 
 #garante que haja uma réplica do dado em cada nó slave, além de uma cópia adicional
 #(geralmente no nó master), totalizando qtd_slave + 1 réplicas.
-dfs_replication=$((qtd_slave + 1))
+# dfs_replication=$((qtd_slave + 1))
+
+dfs_replication=0
+
+if [[ $slaves -gt 3 ]]; then
+    dfs_replication=3
+elif [[ $slaves -gt 1 ]]; then
+    dfs_replication=2
+else
+    dfs_replication=1
+fi
+
 
 # Caminho para o arquivo hdfs-site.xml
 path_to_add_config_hdfs_site_xml="$path_files_hadoop/hdfs-site.xml"
@@ -208,13 +219,15 @@ lines_to_add_in_config_hdfs_site_xml=$(cat <<- EOM
 
   <property>
         <name>dfs.replication</name>
-        <value>$slaves</value>
+        <value>3</value>
   </property>
 
 
 </configuration>
 EOM
 )
+
+echo $lines_to_add_in_config_hdfs_site_xml
 
 # Faz o backup do arquivo hdfs-site.xml
 create_backup_file "$path_to_add_config_hdfs_site_xml"

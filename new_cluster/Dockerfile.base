@@ -1,0 +1,36 @@
+FROM ubuntu:22.04
+
+LABEL maintainer="Eric Jesus"
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV HADOOP_HOME=/home/hadoop/hadoop
+ENV PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+
+RUN apt update && \
+    apt install -y \
+        openjdk-8-jdk \
+        openssh-server \
+        openssh-client \
+        sudo \
+        curl \
+        wget \
+        rsync \
+        net-tools \
+        iputils-ping \
+        vim && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -s /bin/bash hadoop && \
+    echo "hadoop:hadoop" | chpasswd && \
+    adduser hadoop sudo
+
+RUN mkdir /var/run/sshd
+
+USER hadoop
+WORKDIR /home/hadoop
+
+RUN wget https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz && \
+    tar -xzf hadoop-3.4.0.tar.gz && \
+    mv hadoop-3.4.0 hadoop && \
+    rm -r  hadoop-3.4.0.tar.gz
+
