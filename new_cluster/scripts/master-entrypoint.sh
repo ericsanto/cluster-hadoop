@@ -6,6 +6,8 @@ source hadoop-env.sh
 
 source cluster-config.sh
 
+source yarn-env.sh
+
 source config-ssh.sh
 
 mkdir -p $HOME/hdfs/namenode
