@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'Dashboards Automatizados'
+    orgId: 1
+    folder: '' 
+    type: file
+    disableDeletion: false
+    editable: true # Permite fazer alterações neles pela interface depois se quiser
+    options:
+      path: /var/lib/grafana/files 
