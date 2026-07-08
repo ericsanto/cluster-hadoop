@@ -16,7 +16,7 @@ services:
 
 
     
-  node-exporter-worker1:
+  node-exporter-worker:
 
     image: prom/node-exporter
 
