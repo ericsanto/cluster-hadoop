@@ -6,7 +6,7 @@ source hadoop-env.sh
 
 source cluster-config.sh
 
-source yar-env.sh
+source yarn-env.sh
 
 mkdir -p $HADOOP_HOME/hdfs/datanode
 
