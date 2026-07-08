@@ -39,6 +39,8 @@ services:
     volumes:
 
       - grafana:/var/lib/grafana
+      - ../grafana/provisioning:/etc/grafana/provisioning
+      - ../grafana/files:/var/lib/grafana/files
 
     depends_on:
 
