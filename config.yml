@@ -1,0 +1,11 @@
+cluster: 
+  namenode:
+    user: "ericsantos"
+    name: "master"
+    ip: "10.144.169.201"
+
+  datanodes:
+    - user: "eric-santos"
+      name: "master"
+      ip: "10.144.17.173"
+
