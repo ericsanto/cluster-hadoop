@@ -1,0 +1,13 @@
+
+
+cluster: 
+
+  namenode:
+    - name: master
+    - ip: 10.1.1.1
+
+  workers:
+    - nome: "node-worker-1"
+      ip_zerotier: "10.147.20.2"
+    - nome: "node-worker-2"
+      ip_zerotier: "10.147.20.3"
