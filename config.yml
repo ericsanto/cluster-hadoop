@@ -1,11 +1,14 @@
 cluster: 
   namenode:
-    user: "ericsantos"
+    user: "eric-santos"
     name: "master"
-    ip: "10.144.169.201"
+    ip: "10.144.17.173"
+    yarn_limit: "0.3"
+    
 
   datanodes:
     - user: "eric-santos"
       name: "master"
       ip: "10.144.17.173"
+      yarn_limit: "0.3"
 
