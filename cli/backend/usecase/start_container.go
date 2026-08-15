@@ -55,8 +55,8 @@ func StartCluster(configCluster models.Config) error {
 
 	done <- true
 
-	commandMaster := "cd $HOME/S.H.A.N.K.S/new_cluster/master && docker compose -f 'docker-compose.master.yml' up -d"
-	commandWorkers := "cd $HOME/S.H.A.N.K.S/new_cluster/worker && docker compose -f 'docker-compose.worker.yml' up -d"
+	commandMaster := "cd $HOME/S.H.A.N.K.S/new_cluster/master && docker compose -f 'docker-compose.master.yml' up -d --force-recreate"
+	commandWorkers := "cd $HOME/S.H.A.N.K.S/new_cluster/worker && docker compose -f 'docker-compose.worker.yml' up -d --force-recreate"
 
 	privatePathSSHKey, err := getPathPrivateKey()
 	if err != nil {
