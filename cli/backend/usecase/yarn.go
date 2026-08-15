@@ -91,7 +91,7 @@ func insertYarnLimitsToEnvFile(namenode models.Namenode, datanodes []models.Data
 	stringBuffer.WriteString(fmt.Sprintf("namenode_YARN_LIMIT=%s\n", namenode.YarnLimit))
 
 	for i, datanode := range datanodes {
-		stringBuffer.WriteString(fmt.Sprintf("datanode_%d-YARN_LIMIT=%s\n", i+1, datanode.YarnLimit))
+		stringBuffer.WriteString(fmt.Sprintf("datanode_%d_YARN_LIMIT=%s\n", i+1, datanode.YarnLimit))
 
 	}
 
