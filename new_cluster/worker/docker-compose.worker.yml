@@ -7,8 +7,7 @@ services:
       dockerfile: worker/Dockerfile.worker
 
     container_name: worker
-
-    
+    env_file: ../.env
     network_mode: "host"
     volumes:
      - ../ssh:/home/hadoop/.ssh

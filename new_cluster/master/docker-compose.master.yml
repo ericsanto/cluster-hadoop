@@ -8,10 +8,9 @@ services:
       context: ..
       dockerfile: master/Dockerfile.master
     hostname: master
-
     container_name: hadoop-master
     network_mode: "host"
-   
+    env_file: ../.env
     volumes:
      - ../ssh:/home/hadoop/.ssh
 
