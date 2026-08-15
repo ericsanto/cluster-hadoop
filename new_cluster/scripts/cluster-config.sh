@@ -8,6 +8,14 @@ MEMORY=${MEMORY:-2048}
 
 REPLICATION=${REPLICATION:-1}
 
+HOSTNAME=$(hostname)
+
+SUFIX="YARN-LIMIT"
+
+YARN_NAME_ENV="$HOSTNAME"-"$SUFIX"
+
+YARN_MEMORY=$YARN_NAME_ENV
+
 core=$(cat <<EOF
 <configuration>
 
@@ -89,7 +97,7 @@ yarn=$(cat <<EOF
 
         <name>yarn.nodemanager.resource.memory-mb</name>
 
-        <value>${MEMORY}</value>
+        <value>${YARN_MEMORY}</value>
 
     </property>
 
