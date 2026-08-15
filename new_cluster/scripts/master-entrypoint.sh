@@ -18,9 +18,7 @@ if [ ! -d $HOME/hdfs/namenode/current ]; then
 fi
 
 
-# service ssh start
-
-# start-dfs.sh
+start-dfs.sh
 
 start-yarn.sh
 
