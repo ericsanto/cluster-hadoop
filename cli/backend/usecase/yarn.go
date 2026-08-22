@@ -3,6 +3,7 @@ package usecase
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -22,7 +23,7 @@ func ConfigureYarnLimits(configCluster models.Config) error {
 		return err
 	}
 
-	validatedYarnMaster, err := validateYarnLimits(configCluster.Cluster.Namenode.IP, configCluster.Cluster.Namenode.User, pathPrivateKey, yarnMaster)
+	validatedYarnMaster, err := validateYarnLimits(configCluster.Cluster.Namenode.IP, configCluster.Cluster.Namenode.User, pathPrivateKey, yarnMaster, "namenode")
 	if err != nil {
 		return err
 	}
@@ -38,7 +39,7 @@ func ConfigureYarnLimits(configCluster models.Config) error {
 			return fmt.Errorf("erro ao converter o limite de memória do Yarn do Datanode %s: %v", datanode.Name, err)
 		}
 
-		validatedYarnLimit, err := validateYarnLimits(datanode.IP, datanode.User, pathPrivateKey, yarnLimit)
+		validatedYarnLimit, err := validateYarnLimits(datanode.IP, datanode.User, pathPrivateKey, yarnLimit, "datanode")
 		if err != nil {
 			return err
 		}
@@ -55,27 +56,57 @@ func ConfigureYarnLimits(configCluster models.Config) error {
 
 }
 
-func validateYarnLimits(ip, user, pathPrivateKey string, yarnLimit float64) (*string, error) {
+func validateYarnLimits(ip, user, pathPrivateKey string, yarnLimit float64, config string) (*string, error) {
 
-	memory, err := runSSHCommand(ip, "22", user, pathPrivateKey, "free -m | awk 'NR==2{print $2}'")
-	if err != nil {
-		return nil, err
-	}
+	if config == "namenode" {
 
-	intMemory, err := strconv.ParseFloat(strings.TrimSpace(memory), 64)
-	if err != nil {
-		return nil, err
-	}
+		out, err := exec.Command("bash", "-c", "free -m | awk 'NR==2{print $2}'").Output()
 
-	if intMemory < yarnLimit {
-		yarnLimit = intMemory * 70 / 100
-		yarnLimitStr := strconv.FormatFloat(yarnLimit, 'f', -1, 64)
-		return &yarnLimitStr, nil
+		if err != nil {
+			return nil, err
+		}
+
+		result := string(out)
+
+		memory := strings.TrimSpace(result)
+
+		intMemory, err := strconv.ParseFloat(strings.TrimSpace(memory), 64)
+		if err != nil {
+			return nil, err
+		}
+
+		if intMemory < yarnLimit {
+			yarnLimit = intMemory * 70 / 100
+			yarnLimitStr := strconv.FormatFloat(yarnLimit, 'f', -1, 64)
+			return &yarnLimitStr, nil
+
+		} else {
+			yarnLimitStr := strconv.FormatFloat(yarnLimit, 'f', -1, 64)
+			return &yarnLimitStr, nil
+		}
 
 	} else {
-		yarnLimitStr := strconv.FormatFloat(yarnLimit, 'f', -1, 64)
-		return &yarnLimitStr, nil
+		memory, err := runSSHCommand(ip, "22", user, pathPrivateKey, "free -m | awk 'NR==2{print $2}'")
+		if err != nil {
+			return nil, err
+		}
+
+		intMemory, err := strconv.ParseFloat(strings.TrimSpace(memory), 64)
+		if err != nil {
+			return nil, err
+		}
+
+		if intMemory < yarnLimit {
+			yarnLimit = intMemory * 70 / 100
+			yarnLimitStr := strconv.FormatFloat(yarnLimit, 'f', -1, 64)
+			return &yarnLimitStr, nil
+
+		} else {
+			yarnLimitStr := strconv.FormatFloat(yarnLimit, 'f', -1, 64)
+			return &yarnLimitStr, nil
+		}
 	}
+
 }
 
 func insertYarnLimitsToEnvFile(namenode models.Namenode, datanodes []models.Datanode, pathPrivateKey string) error {
