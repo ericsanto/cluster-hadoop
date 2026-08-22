@@ -61,6 +61,19 @@ func runSSHCommand(ip string, port string, username string, privateKeyPath strin
 //
 // Então, precisamos pegar o caminho da chave privada do usuário que executou o sudo, não do root.
 func getPathPrivateKey() (string, error) {
+
+	home, err := getHomeDir()
+
+	if err != nil {
+		return "", err
+	}
+
+	caminhoCompleto := filepath.Join(home, ".ssh", "id_rsa")
+
+	return caminhoCompleto, nil
+}
+
+func getHomeDir() (string, error) {
 	var home string
 
 	sudoUser := os.Getenv("SUDO_USER")
@@ -82,7 +95,5 @@ func getPathPrivateKey() (string, error) {
 		home = h
 	}
 
-	caminhoCompleto := filepath.Join(home, ".ssh", "id_rsa")
-
-	return caminhoCompleto, nil
+	return home, nil
 }
