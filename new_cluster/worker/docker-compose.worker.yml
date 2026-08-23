@@ -8,7 +8,7 @@ services:
     network_mode: "host"
     hostname: datanode_1
     volumes:
-      - datanode_data:/home/hadoop/hdfs/datanode
+      - datanode_data:/home/hadoop/hadoop/hdfs/datanode
   node-exporter-worker:
     image: prom/node-exporter
     network_mode: service:worker
