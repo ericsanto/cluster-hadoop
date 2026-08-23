@@ -9,14 +9,14 @@ source cluster-config.sh
 source yarn-env.sh
 
 
-mkdir -p $HOME/hdfs/namenode
+mkdir -p $HADOOP_HOME/hdfs/namenode
 
-if [ ! -d $HOME/hdfs/namenode/current ]; then
+if [ ! -d $HADOOP_HOME/hdfs/namenode/current ]; then
 
     hdfs namenode -format
 fi
 
-mkdir -p $HOME/hdfs/datanode
+mkdir -p $HADOOP_HOME/hdfs/datanode
 
 echo "Iniciando NameNode..."
 hdfs --daemon start namenode

@@ -8,7 +8,7 @@ source cluster-config.sh
 
 source yarn-env.sh
 
-mkdir -p $HOME/hdfs/datanode
+mkdir -p $HADOOP_HOME/hdfs/datanode
 
 echo "Iniciando DataNode..."
 hdfs --daemon start datanode

@@ -49,7 +49,7 @@ hdfs=$(cat <<EOF
 
         <name>dfs.namenode.name.dir</name>
 
-        <value>$HOME/hdfs/namenode</value>
+        <value>$HADOOP_HOME/hdfs/namenode</value>
 
     </property>
 
@@ -57,7 +57,7 @@ hdfs=$(cat <<EOF
 
         <name>dfs.datanode.data.dir</name>
 
-        <value>$HOME/hdfs/datanode</value>
+        <value>$HADOOP_HOME/hdfs/datanode</value>
 
     </property>
 
