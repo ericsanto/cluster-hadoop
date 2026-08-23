@@ -16,10 +16,16 @@ if [ ! -d $HOME/hdfs/namenode/current ]; then
     hdfs namenode -format
 fi
 
+mkdir -p $HADOOP_HOME/hdfs/datanode
+
 echo "Iniciando NameNode..."
 hdfs --daemon start namenode
 
 echo "Iniciando ResourceManager..."
 yarn --daemon start resourcemanager
+
+echo "Iniciando NodeManager..."
+yarn --daemon start nodemanager
+
 
 tail -f /dev/null
