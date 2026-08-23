@@ -10,6 +10,26 @@ import (
 	"github.com/ericsanto/S.H.A.N.K.S/cli/backend/models"
 )
 
+var logMu sync.Mutex
+
+func logInfo(format string, args ...any) {
+	logMu.Lock()
+	defer logMu.Unlock()
+	fmt.Printf("\033[1;34m[INFO]\033[0m "+format+"\n", args...)
+}
+
+func logSuccess(format string, args ...any) {
+	logMu.Lock()
+	defer logMu.Unlock()
+	fmt.Printf("\033[1;32m[OK]\033[0m "+format+"\n", args...)
+}
+
+func logFailure(format string, args ...any) {
+	logMu.Lock()
+	defer logMu.Unlock()
+	fmt.Printf("\033[1;31m[FAIL]\033[0m "+format+"\n", args...)
+}
+
 func startSpinner(message string, done <-chan bool, fail chan bool) {
 
 	frames := []string{"|", "/", "-", "\\"}
@@ -76,149 +96,159 @@ func StartCluster(configCluster models.Config) error {
 		return err
 	}
 
-	go startSpinner("Verificando se a imagem docker já está buildada na master", done, fail)
-
+	logInfo("Verificando a imagem hadoop-base na master...")
 	isImageBuilded := "docker images -q hadoop-base"
 	out, err := exec.Command("bash", "-c", isImageBuilded).Output()
 
 	if err != nil {
-		fail <- true
+
 		return fmt.Errorf("erro ao verificar se a imagem docker existe no host: %v", err)
 	}
-	done <- true
 
 	resultFormated := strings.TrimSpace(string(out))
 
 	if resultFormated == "" {
-
+		logInfo("Imagem hadoop-base não encontrada na master; iniciando o build.")
 		//FAZ O BUILD DA IMAGEM CASO NAO TENHA
 		wg.Add(1)
-		go buildImage(commandDockerBuildImage, done, fail, errors, &wg, isImageBuildOK)
+		go buildImage(commandDockerBuildImage, errors, &wg, isImageBuildOK)
 
 	} else {
+		logSuccess("Imagem hadoop-base encontrada na master.")
 		isImageBuildOK <- true
 	}
 
 	//ESPERA O SINAL DO BUILD DA IMAGEM
 	wg.Add(1)
-	go startContainer(commandMaster, done, fail, isImageBuildOK, errors, &wg)
+	go startContainer(commandMaster, isImageBuildOK, errors, &wg)
 
 	for _, datanode := range configCluster.Cluster.Datanodes {
 
 		wg.Add(1)
-		go verifyImageBuildInDatanode(datanode, done, fail, errors, resultImageBuildVerifiedDatanode, privatePathSSHKey, isImageBuilded, &wg)
+		go verifyImageBuildInDatanode(datanode, errors, resultImageBuildVerifiedDatanode, privatePathSSHKey, isImageBuilded, &wg)
 
 		wg.Add(1)
-		go imageBuildDatanode(datanode, resultImageBuildVerifiedDatanode, done, fail, privatePathSSHKey, commandDockerBuildImage, errors, &wg)
+		go imageBuildDatanode(datanode, resultImageBuildVerifiedDatanode, privatePathSSHKey, commandDockerBuildImage, errors, &wg)
 
 		wg.Add(1)
-		go startContainerDatanode(datanode, done, fail, privatePathSSHKey, commandWorkers, errors, &wg)
+		go startContainerDatanode(datanode, privatePathSSHKey, commandWorkers, errors, &wg)
 
 	}
 
-	wg.Wait()
+	go func() {
+		wg.Wait()
+		close(errors)
+	}()
 
-	close(errors)
-
+	var firstError error
 	for err := range errors {
-		if err != nil {
-			return err
+		if err != nil && firstError == nil {
+			firstError = err
 		}
+	}
 
+	if firstError != nil {
+		return firstError
 	}
 
 	fmt.Println("\n ☠️🗡️ Cluster Iniciado com Sucesso!")
 	return nil
 }
 
-func buildImage(commandImageBuilder string, done chan bool, fail chan bool, errors chan<- error, wg *sync.WaitGroup, isImageBuildOK chan<- bool) {
+func buildImage(commandImageBuilder string, errors chan<- error, wg *sync.WaitGroup, isImageBuildOK chan<- bool) {
+
+	logInfo("Construindo a imagem hadoop-base na master; isso pode demorar...")
 
 	defer wg.Done()
-	go startSpinner("Imagem não encontrada na master. Fazendo build (aguarde)...", done, fail)
 
 	outBuild, errBuild := exec.Command("bash", "-c", commandImageBuilder).CombinedOutput()
 
 	if errBuild != nil {
-		fail <- true
+		logFailure("Não foi possível construir a imagem na master.")
+		isImageBuildOK <- false
 		errors <- fmt.Errorf("erro ao fazer o build da imagem na master: %v\nLogs: %s", errBuild, string(outBuild))
-
+		return
 	}
 
-	done <- true
+	logSuccess("Build da imagem na master concluído.")
 	isImageBuildOK <- true
 
 }
 
-func startContainer(commandMaster string, done, fail chan bool, isBuildImageOK <-chan bool, errors chan<- error, wg *sync.WaitGroup) {
+func startContainer(commandMaster string, isBuildImageOK <-chan bool, errors chan<- error, wg *sync.WaitGroup) {
 
 	defer wg.Done()
 
 	if <-isBuildImageOK {
-		go startSpinner("Iniciando container na master", done, fail)
-		_, err := exec.Command("bash", "-c", commandMaster).CombinedOutput()
-		if err != nil {
-			fail <- true
-			errors <- err
+		logInfo("Iniciando o container da master...")
 
+		output, err := exec.Command("bash", "-c", commandMaster).CombinedOutput()
+		if err != nil {
+			logFailure("Não foi possível iniciar o container da master.")
+			errors <- fmt.Errorf("erro ao iniciar o container da master: %v\nLogs: %s", err, string(output))
+			return
 		}
-		done <- true
-	} else {
-		fail <- false
+
+		logSuccess("Container da master iniciado.")
+		return
 	}
 
-	go startSpinner("Container Iniciado", done, fail)
-	done <- true
+	logInfo("Container da master não será iniciado porque o build falhou.")
 
 }
 
-func verifyImageBuildInDatanode(datanode models.Datanode, done, fail chan bool, errors chan<- error, resultImageBuildVerifiedDatanode chan<- string, privatePathSSHKey, isImageBuilded string,
+func verifyImageBuildInDatanode(datanode models.Datanode, errors chan<- error, resultImageBuildVerifiedDatanode chan<- string, privatePathSSHKey, isImageBuilded string,
 	wg *sync.WaitGroup) {
 
 	defer wg.Done()
-	go startSpinner(fmt.Sprintf("Verificando se a imagem está buildada no datanode %s", datanode.Name), done, fail)
 
+	logInfo("[%s] Verificando a imagem hadoop-base em %s...", datanode.Name, datanode.IP)
 	outSsh, err := runSSHCommand(datanode.IP, "22", datanode.User, privatePathSSHKey, isImageBuilded)
 	if err != nil {
-		fail <- true
+		logFailure("[%s] Não foi possível verificar a imagem.", datanode.Name)
 		errors <- fmt.Errorf("erro na verificação do build no datanode %s: %v", datanode.Name, err)
+	} else if strings.TrimSpace(outSsh) == "" {
+		logInfo("[%s] Imagem não encontrada; iniciando o build.", datanode.Name)
+	} else {
+		logSuccess("[%s] Imagem hadoop-base encontrada.", datanode.Name)
 	}
-	done <- true
 
 	resultImageBuildVerifiedDatanode <- strings.TrimSpace(outSsh)
 
 }
 
-func imageBuildDatanode(datanode models.Datanode, resultImageBuildVerifiedDatanode <-chan string, done, fail chan bool, privatePathSSHKey, commandDockerBuildImage string, errors chan<- error,
+func imageBuildDatanode(datanode models.Datanode, resultImageBuildVerifiedDatanode <-chan string, privatePathSSHKey, commandDockerBuildImage string, errors chan<- error,
 	wg *sync.WaitGroup) {
 
 	defer wg.Done()
 	output := <-resultImageBuildVerifiedDatanode
 
 	if output == "" {
-		go startSpinner(fmt.Sprintf("Imagem não encontrada no datanode %s. Fazendo build (aguarde)...", datanode.Name), done, fail)
+		logInfo("[%s] Construindo a imagem hadoop-base; isso pode demorar...", datanode.Name)
 
 		outBuild, err := runSSHCommand(datanode.IP, "22", datanode.User, privatePathSSHKey, commandDockerBuildImage)
 
 		if err != nil {
-			fail <- true
-			errors <- fmt.Errorf("erro ao fazer o build da imagem no datanode: %v\nLogs: %s", err, outBuild)
+			logFailure("[%s] Não foi possível construir a imagem.", datanode.Name)
+			errors <- fmt.Errorf("erro ao fazer o build da imagem no datanode %s: %v\nLogs: %s", datanode.Name, err, outBuild)
+			return
 		}
 
-		done <- true
-
+		logSuccess("[%s] Build da imagem concluído.", datanode.Name)
 	}
 }
 
-func startContainerDatanode(datanode models.Datanode, done, fail chan bool, privatePathSSHKey, commandWorkers string, errors chan<- error, wg *sync.WaitGroup) {
+func startContainerDatanode(datanode models.Datanode, privatePathSSHKey, commandWorkers string, errors chan<- error, wg *sync.WaitGroup) {
 
 	defer wg.Done()
 
-	go startSpinner(fmt.Sprintf("Subindo container do datanode %s", datanode.Name), done, fail)
-
+	logInfo("[%s] Iniciando o container em %s...", datanode.Name, datanode.IP)
 	_, err := runSSHCommand(datanode.IP, "22", datanode.User, privatePathSSHKey, commandWorkers)
 	if err != nil {
-		fail <- true
+		logFailure("[%s] Não foi possível iniciar o container.", datanode.Name)
 		errors <- fmt.Errorf("erro ao subir container no datanode %s: %v", datanode.Name, err)
+		return
 	}
-	done <- true
+
+	logSuccess("[%s] Container iniciado.", datanode.Name)
 }
