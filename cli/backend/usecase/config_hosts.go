@@ -62,5 +62,5 @@ func ConfigHosts(c models.Config) error {
 }
 
 func generateCommandToUpdateHosts(password string, bufferDatanodes strings.Builder) string {
-	return fmt.Sprintf(`echo "%s" | sudo -S sh -c " { sed '/# START S.H.A.N.K.S #/,/# END S.H.A.N.K.S #/d' /etc/hosts; echo  '# START S.H.A.N.K.S #\n%s\n# END S.H.A.N.K.S #'; } > /etc/hosts.tmp && mv /etc/hosts.tmp /etc/hosts "`, password, bufferDatanodes.String())
+	return fmt.Sprintf(`echo "%s" | sudo -S sh -c " { sed '/# START S.H.A.N.K.S #/,/# END S.H.A.N.K.S #/d' /etc/hosts; echo  '# START S.H.A.N.K.S #'; echo '%s'; echo '# END S.H.A.N.K.S #'; } > /etc/hosts.tmp && mv /etc/hosts.tmp /etc/hosts "`, password, bufferDatanodes.String())
 }
