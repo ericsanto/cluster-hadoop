@@ -5,16 +5,9 @@ services:
     build: 
       context: ..
       dockerfile: worker/Dockerfile.worker
-
     container_name: worker
     env_file: ../.env
     network_mode: "host"
-    volumes:
-     - ../ssh:/home/hadoop/.ssh
-     - ../workers.txt:/home/hadoop/hadoop/etc/hadoop/workers
-
-
-    
   node-exporter-worker:
 
     image: prom/node-exporter
