@@ -10,11 +10,17 @@ REPLICATION=${REPLICATION:-1}
 
 HOSTNAME=$(hostname)
 
-SUFIX="YARN_LIMIT"
+if [ "$HOSTNAME" = "master" ]; then
 
-YARN_NAME_ENV="$HOSTNAME"_"$SUFIX"
+    YARN_NAME_ENV="master_YARN_LIMIT"
 
-YARN_MEMORY=$YARN_NAME_ENV
+else
+
+    YARN_NAME_ENV="${HOSTNAME}_YARN_LIMIT"
+
+fi
+
+YARN_MEMORY="${!YARN_NAME_ENV:-2048}"
 
 core=$(cat <<EOF
 <configuration>
