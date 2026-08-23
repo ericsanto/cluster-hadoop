@@ -1,7 +1,5 @@
 services:
-
   worker:
-
     build: 
       context: ..
       dockerfile: worker/Dockerfile.worker
@@ -9,8 +7,12 @@ services:
     env_file: ../../.env
     network_mode: "host"
     hostname: datanode_1
+    volumes:
+      - datanode_data:/home/hadoop/hdfs/datanode
   node-exporter-worker:
-
     image: prom/node-exporter
-
     network_mode: service:worker
+
+
+volumes:
+  datanode_data:
