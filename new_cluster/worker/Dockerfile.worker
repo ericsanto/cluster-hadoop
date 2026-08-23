@@ -6,7 +6,9 @@ COPY jmx /opt/jmx
 
 USER root
 
-RUN chmod +x /usr/local/bin/worker-entrypoint.sh
+RUN chmod +x /usr/local/bin/worker-entrypoint.sh && \
+    mkdir -p /home/hadoop/hadoop/hdfs/datanode && \
+    chown -R hadoop:hadoop /home/hadoop/hadoop/hdfs
 
 USER hadoop
 

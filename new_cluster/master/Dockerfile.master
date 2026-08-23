@@ -5,7 +5,10 @@ COPY jmx /opt/jmx
 
 USER root
 
-RUN chmod +x /usr/local/bin/master-entrypoint.sh
+RUN chmod +x /usr/local/bin/master-entrypoint.sh && \
+    mkdir -p /home/hadoop/hadoop/hdfs/namenode \
+             /home/hadoop/hadoop/hdfs/datanode && \
+    chown -R hadoop:hadoop /home/hadoop/hadoop/hdfs
 
 USER hadoop
 
