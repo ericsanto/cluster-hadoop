@@ -17,9 +17,10 @@ if [ ! -d $HOME/hdfs/namenode/current ]; then
     hdfs namenode -format
 fi
 
+echo "Iniciando NameNode..."
+hdfs --daemon start namenode
 
-start-dfs.sh
-
-start-yarn.sh
+echo "Iniciando ResourceManager..."
+yarn --daemon start resourcemanager
 
 tail -f /dev/null

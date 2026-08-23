@@ -10,8 +10,10 @@ source yarn-env.sh
 
 mkdir -p $HADOOP_HOME/hdfs/datanode
 
-start-dfs.sh
+echo "Iniciando DataNode..."
+hdfs --daemon start datanode
 
-start-yarn.sh
+echo "Iniciando NodeManager..."
+yarn --daemon start nodemanager
 
 tail -f /dev/null
