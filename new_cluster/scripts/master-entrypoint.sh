@@ -16,7 +16,7 @@ if [ ! -d $HOME/hdfs/namenode/current ]; then
     hdfs namenode -format
 fi
 
-mkdir -p $HADOOP_HOME/hdfs/datanode
+mkdir -p $HOME/hdfs/datanode
 
 echo "Iniciando NameNode..."
 hdfs --daemon start namenode
