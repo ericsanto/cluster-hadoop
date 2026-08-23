@@ -18,6 +18,10 @@ func ConfigureYarnLimits(configCluster models.Config) error {
 		return fmt.Errorf("erro ao converter o limite de memória do Yarn do Namenode: %v", err)
 	}
 
+	if err := configCluster.Cluster.Namenode.VerifiyValueMinYarnRequirements(); err != nil {
+		return err
+	}
+
 	pathPrivateKey, err := getPathPrivateKey()
 	if err != nil {
 		return err
@@ -37,6 +41,10 @@ func ConfigureYarnLimits(configCluster models.Config) error {
 		yarnLimit, err := datanode.ConvertToYarnLimit()
 		if err != nil {
 			return fmt.Errorf("erro ao converter o limite de memória do Yarn do Datanode %s: %v", datanode.Name, err)
+		}
+
+		if err := datanode.VerifiyValueMinYarnRequirements(); err != nil {
+			return err
 		}
 
 		validatedYarnLimit, err := validateYarnLimits(datanode.IP, datanode.User, pathPrivateKey, yarnLimit, "datanode")
