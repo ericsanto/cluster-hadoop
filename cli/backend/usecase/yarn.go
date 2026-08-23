@@ -48,7 +48,7 @@ func ConfigureYarnLimits(configCluster models.Config) error {
 		yarnWorkers = append(yarnWorkers, datanode)
 	}
 
-	if err := insertYarnLimitsToEnvFile(configCluster.Cluster.Namenode, yarnWorkers, pathPrivateKey); err != nil {
+	if err := insertYarnLimitsToEnvFile(configCluster.Cluster.Namenode, yarnWorkers); err != nil {
 		return err
 	}
 
@@ -109,7 +109,7 @@ func validateYarnLimits(ip, user, pathPrivateKey string, yarnLimit float64, conf
 
 }
 
-func insertYarnLimitsToEnvFile(namenode models.Namenode, datanodes []models.Datanode, pathPrivateKey string) error {
+func insertYarnLimitsToEnvFile(namenode models.Namenode, datanodes []models.Datanode) error {
 
 	var stringBuffer strings.Builder
 
@@ -124,14 +124,6 @@ func insertYarnLimitsToEnvFile(namenode models.Namenode, datanodes []models.Data
 	for i, datanode := range datanodes {
 		stringBuffer.WriteString(fmt.Sprintf("datanode_%d_YARN_LIMIT=%s\n", i+1, datanode.YarnLimit))
 
-	}
-
-	command := fmt.Sprintf(`touch ~/S.H.A.N.K.S/.env && sed -i '/###ENVS S.H.A.N.K.S###/,/###ENVS S.H.A.N.K.S###/d' ~/S.H.A.N.K.S/.env && echo -e '###ENVS S.H.A.N.K.S###\n%s###ENVS S.H.A.N.K.S###'  >> ~/S.H.A.N.K.S/.env`, stringBuffer.String())
-
-	for _, datanode := range datanodes {
-		if _, err := runSSHCommand(datanode.IP, "22", datanode.User, pathPrivateKey, command); err != nil {
-			return err
-		}
 	}
 
 	_, err = file.WriteString(stringBuffer.String())
