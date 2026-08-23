@@ -1,6 +1,9 @@
 package models
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 type Datanode struct {
 	User       string `yaml:"user"`
@@ -21,4 +24,18 @@ func (d *Datanode) ConvertToYarnLimit() (float64, error) {
 
 	return byteYarnLimit, nil
 
+}
+
+func (d *Datanode) VerifiyValueMinYarnRequirements() error {
+
+	yarnLimit, err := d.ConvertToYarnLimit()
+	if err != nil {
+		return err
+	}
+
+	if yarnLimit < 1024 {
+		return fmt.Errorf("o limite de memória do Yarn para o Datanode %s é menor que o mínimo requerido (1024 MB)", d.Name)
+	}
+
+	return nil
 }

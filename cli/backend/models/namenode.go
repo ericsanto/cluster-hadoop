@@ -1,6 +1,9 @@
 package models
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 type Namenode struct {
 	User       string `yaml:"user"`
@@ -21,4 +24,18 @@ func (n *Namenode) ConvertToYarnLimit() (float64, error) {
 
 	return byteYarnLimit, nil
 
+}
+
+func (n *Namenode) VerifiyValueMinYarnRequirements() error {
+
+	yarnLimit, err := n.ConvertToYarnLimit()
+	if err != nil {
+		return err
+	}
+
+	if yarnLimit < 1024 {
+		return fmt.Errorf("o limite de memória do Yarn para o Namenode %s é menor que o mínimo requerido (1024 MB)", n.Name)
+	}
+
+	return nil
 }
