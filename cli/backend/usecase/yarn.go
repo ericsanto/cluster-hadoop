@@ -139,5 +139,37 @@ func insertYarnLimitsToEnvFile(namenode models.Namenode, datanodes []models.Data
 		return fmt.Errorf("erro ao escrever no arquivo .env: %v", err)
 	}
 
+	pathPrivateKey, err := getPathPrivateKey()
+	if err != nil {
+		return err
+	}
+
+	for _, datanode := range datanodes {
+		destination := fmt.Sprintf(
+			"%s@%s:S.H.A.N.K.S/.env",
+			datanode.User,
+			datanode.IP,
+		)
+
+		cmd := exec.Command(
+			"scp",
+			"-i", pathPrivateKey,
+			"-o", "IdentitiesOnly=yes",
+			"-o", "StrictHostKeyChecking=accept-new",
+			".env",
+			destination,
+		)
+
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf(
+				"erro ao copiar o .env para o datanode %s: %v\nSaída: %s",
+				datanode.Name,
+				err,
+				string(output),
+			)
+		}
+	}
+
 	return nil
 }
