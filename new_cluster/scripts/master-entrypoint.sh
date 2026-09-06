@@ -11,6 +11,7 @@ source yarn-env.sh
 
 mkdir -p $HADOOP_HOME/hdfs/namenode
 
+
 if [ ! -d $HADOOP_HOME/hdfs/namenode/current ]; then
 
     hdfs namenode -format
@@ -27,5 +28,7 @@ yarn --daemon start resourcemanager
 echo "Iniciando NodeManager..."
 yarn --daemon start nodemanager
 
+echo "Iniciando datanode"
+hdfs --daemon start datanode
 
 tail -f /dev/null
