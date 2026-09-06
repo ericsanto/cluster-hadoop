@@ -18,7 +18,7 @@ var stopCmd = &cobra.Command{
 		configCluster, err := usecase.ReadYaml(cfgFile)
 
 		if err != nil {
-			fmt.Println("%w", err)
+			fmt.Println(err)
 			return
 		}
 
@@ -30,7 +30,7 @@ var stopCmd = &cobra.Command{
 
 func init() {
 	// Mantém as flags que você já configurou
-	// rootCmd.PersistentFlags().StringVarP(&cfgFile, "", "", "", "caminho para o arquivo yaml")
+	stopCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "caminho para o arquivo yaml")
 
 	// 2. Adicione o novo comando ao rootCmd
 	rootCmd.AddCommand(stopCmd)
