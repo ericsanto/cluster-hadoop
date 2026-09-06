@@ -30,6 +30,20 @@ func logFailure(format string, args ...any) {
 	fmt.Printf("\033[1;31m[FAIL]\033[0m "+format+"\n", args...)
 }
 
+func okBuildImage(resultBuidImageDatanode <-chan bool, errors chan<- error, wg *sync.WaitGroup, datanode models.Datanode, pathPrivateSSHKey, commandWorkers string) {
+
+	defer wg.Done()
+
+	if <-resultBuidImageDatanode {
+		wg.Add(1)
+		go startContainerDatanode(datanode, pathPrivateSSHKey, commandWorkers, errors, wg)
+		return
+	} else {
+		logInfo("[%s] Container não será iniciado porque o build falhou.", datanode.Name)
+		return
+	}
+}
+
 func startSpinner(message string, done <-chan bool, fail chan bool) {
 
 	frames := []string{"|", "/", "-", "\\"}
@@ -72,7 +86,7 @@ func StartCluster(configCluster models.Config) error {
 	fail := make(chan bool)
 	isImageBuildOK := make(chan bool, 1)
 	errors := make(chan error)
-	resultImageBuildVerifiedDatanode := make(chan string, len(configCluster.Cluster.Datanodes))
+
 	// resultImageBuildVerifiedMaster := make(chan bool, 1)
 
 	var wg sync.WaitGroup
@@ -89,7 +103,8 @@ func StartCluster(configCluster models.Config) error {
 
 	commandMaster := fmt.Sprintf("cd %s/S.H.A.N.K.S/new_cluster/master && docker compose -f 'docker-compose.master.yml' up -d --build", home)
 	commandWorkers := "cd $HOME/S.H.A.N.K.S/new_cluster/worker && docker compose -f 'docker-compose.worker.yml' up -d --build"
-	commandDockerBuildImage := fmt.Sprintf("cd %s/S.H.A.N.K.S/new_cluster && docker build --no-cache -t hadoop-base -f Dockerfile.base .", home)
+	commandDockerBuildImageMaster := fmt.Sprintf("cd %s/S.H.A.N.K.S/new_cluster && docker build --no-cache -t hadoop-base -f Dockerfile.base .", home)
+	commandDockerBuildWorkers := "cd $HOME/S.H.A.N.K.S/new_cluster && docker build --no-cache -t hadoop-base -f Dockerfile.base ."
 
 	privatePathSSHKey, err := getPathPrivateKey()
 	if err != nil {
@@ -111,7 +126,7 @@ func StartCluster(configCluster models.Config) error {
 		logInfo("Imagem hadoop-base não encontrada na master; iniciando o build.")
 		//FAZ O BUILD DA IMAGEM CASO NAO TENHA
 		wg.Add(1)
-		go buildImage(commandDockerBuildImage, errors, &wg, isImageBuildOK)
+		go buildImage(commandDockerBuildImageMaster, errors, &wg, isImageBuildOK)
 
 	} else {
 		logSuccess("Imagem hadoop-base encontrada na master.")
@@ -124,14 +139,39 @@ func StartCluster(configCluster models.Config) error {
 
 	for _, datanode := range configCluster.Cluster.Datanodes {
 
-		wg.Add(1)
-		go verifyImageBuildInDatanode(datanode, errors, resultImageBuildVerifiedDatanode, privatePathSSHKey, isImageBuilded, &wg)
+		imageVerified := make(chan string, 1)
+		imageReady := make(chan bool, 1)
 
 		wg.Add(1)
-		go imageBuildDatanode(datanode, resultImageBuildVerifiedDatanode, privatePathSSHKey, commandDockerBuildImage, errors, &wg)
+		go verifyImageBuildInDatanode(
+			datanode,
+			errors,
+			imageVerified,
+			privatePathSSHKey,
+			isImageBuilded,
+			&wg,
+		)
 
 		wg.Add(1)
-		go startContainerDatanode(datanode, privatePathSSHKey, commandWorkers, errors, &wg)
+		go imageBuildDatanode(
+			datanode,
+			imageVerified,
+			privatePathSSHKey,
+			commandDockerBuildWorkers,
+			errors,
+			&wg,
+			imageReady,
+		)
+
+		wg.Add(1)
+		go okBuildImage(
+			imageReady,
+			errors,
+			&wg,
+			datanode,
+			privatePathSSHKey,
+			commandWorkers,
+		)
 
 	}
 
@@ -191,9 +231,9 @@ func startContainer(commandMaster string, isBuildImageOK <-chan bool, errors cha
 
 		logSuccess("Container da master iniciado.")
 		return
+	} else {
+		logInfo("Container da master não será iniciado porque o build falhou.")
 	}
-
-	logInfo("Container da master não será iniciado porque o build falhou.")
 
 }
 
@@ -218,7 +258,7 @@ func verifyImageBuildInDatanode(datanode models.Datanode, errors chan<- error, r
 }
 
 func imageBuildDatanode(datanode models.Datanode, resultImageBuildVerifiedDatanode <-chan string, privatePathSSHKey, commandDockerBuildImage string, errors chan<- error,
-	wg *sync.WaitGroup) {
+	wg *sync.WaitGroup, resultBuidImageDatanode chan<- bool) {
 
 	defer wg.Done()
 	output := <-resultImageBuildVerifiedDatanode
@@ -234,7 +274,11 @@ func imageBuildDatanode(datanode models.Datanode, resultImageBuildVerifiedDatano
 			return
 		}
 
+		resultBuidImageDatanode <- true
+
 		logSuccess("[%s] Build da imagem concluído.", datanode.Name)
+	} else {
+		resultBuidImageDatanode <- true
 	}
 }
 
